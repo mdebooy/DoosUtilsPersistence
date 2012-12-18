@@ -3,7 +3,7 @@
   <parent>
     <artifactId>doosutils</artifactId>
     <groupId>eu.debooy.doosutils</groupId>
-    <version>1.1.1</version>
+    <version>1.1.2-SNAPSHOT</version>
   </parent>
   <artifactId>doosutils-persistence</artifactId>
   <name>Utility classes voor DOOS Applicaties (Persistence)</name>
@@ -18,12 +18,12 @@
      <dependency>
       <groupId>eu.debooy.doosutils</groupId>
       <artifactId>doosutils-core</artifactId>
-      <version>1.1.1</version>
+      <version>1.1.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>eu.debooy.doosutils</groupId>
       <artifactId>doosutils-util</artifactId>
-      <version>1.1.1</version>
+      <version>1.1.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>javax</groupId>
