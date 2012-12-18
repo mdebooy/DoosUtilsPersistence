@@ -36,7 +36,8 @@ import org.slf4j.Logger;
 public abstract class Dto implements Serializable {
   private static final  long  serialVersionUID  = 1L;
 
-  public static final String[] GET_METHODS_PREFIXES = {"get", "is"};
+  private static final  String[]  GET_METHODS_PREFIXES  = {"get", "is"};
+  private static final  String    LIKE                  = "%";
 
   /**
    * Zoek alle 'getters'.
@@ -78,12 +79,14 @@ public abstract class Dto implements Serializable {
    */
   private boolean isCollectionModified(Collection<?> collection,
                                        Collection<?> oldCollection) {
-    if (null != collection && null == oldCollection) {
+    if ((null != collection && null == oldCollection)
+        || (null == collection && null != oldCollection)) {
       return true;
-    } else if ((null == collection && null != oldCollection)
-        || (null == collection && null == oldCollection)) {
+    }
+    if (null == collection && null == oldCollection) {
       return false;
-    } else if (collection.size() != oldCollection.size()) {
+    } 
+    if (collection.size() != oldCollection.size()) {
       return true;
     }
 
@@ -118,14 +121,13 @@ public abstract class Dto implements Serializable {
       return true;
     }
 
-    Object[]  args      = null;
     boolean   modified  = false;
     Object    value1;
     Object    value2;
     try {
       for (Method method : findGetters()) {
-        value1  = method.invoke(this, args);
-        value2  = method.invoke(oldDto, args);
+        value1  = method.invoke(this);
+        value2  = method.invoke(oldDto);
         if ((null != value1 && null == value2)
             || (null == value1 && null != value2)) {
           modified = true;
@@ -161,15 +163,22 @@ public abstract class Dto implements Serializable {
   /**
    * Maak een DoosFilter die gebaseerd is op de DTO.
    * 
-   * @param <T>
-   * 
    * @return
    */
   public <T> DoosFilter<T> makeFilter() {
+    return makeFilter(false);
+  }
+
+  /**
+   * Maak een DoosFilter die gebaseerd is op de DTO.
+   * 
+   * @param like
+   * @return
+   */
+  public <T> DoosFilter<T> makeFilter(boolean like) {
     DoosFilter<T> filter    = new DoosFilter<T>();
     String        attribute = null;
     Object        waarde    = null;
-    Object[]      arg       = null;
 
     for (Method method : findGetters()) {
       if (method.getName().startsWith("get")) {
@@ -179,11 +188,15 @@ public abstract class Dto implements Serializable {
               && !attribute.equals("Logger")) {
             attribute = attribute.substring(0, 1).toLowerCase()
                         + attribute.substring(1);
-            waarde    = method.invoke(this, arg);
-            if (!(waarde instanceof ArrayList)) {
-              if (DoosUtils.isNotBlankOrNull(waarde)) {
-                filter.addFilter(attribute, waarde);
+            waarde    = method.invoke(this);
+            if (!(waarde instanceof ArrayList)
+                && DoosUtils.isNotBlankOrNull(waarde)) {
+              if (like
+                  && waarde instanceof String
+                  && ((String) waarde).indexOf(LIKE) < 0) {
+                waarde  = LIKE + waarde + LIKE;
               }
+              filter.addFilter(attribute, waarde);
             }
           }
         } catch (IllegalArgumentException e) {
@@ -219,7 +232,6 @@ public abstract class Dto implements Serializable {
     StringBuffer  sb        = new StringBuffer();
     String        attribute = null;
     Object        waarde    = null;
-    Object[]      arg       = null;
 
     sb.append(this.getClass().getSimpleName()).append(" (");
     for (Method method : findGetters()) {
@@ -234,7 +246,7 @@ public abstract class Dto implements Serializable {
         attribute = attribute.substring(0, 1).toLowerCase()
                     + attribute.substring(1);
         sb.append(", ").append(attribute).append("=");
-        waarde = method.invoke(this, arg);
+        waarde = method.invoke(this);
         if (null != waarde) {
           if (waarde instanceof Dto) {
             // Geef enkel de naam van andere DTOs.

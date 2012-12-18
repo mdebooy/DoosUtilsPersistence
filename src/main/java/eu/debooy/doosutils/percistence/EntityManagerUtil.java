@@ -34,18 +34,18 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Marco de Booij
  */
-public class EntityManagerUtil {
+public final class EntityManagerUtil {
   private EntityManagerUtil() {}
 
   private static        EntityManagerFactory        emf;
-  private static final  Logger                      logger        =
+  private static final  Logger                      LOGGER        =
       LoggerFactory.getLogger(EntityManagerUtil.class);
-  public  static final  ThreadLocal<EntityManager>  entitymanager =
+  public  static final  ThreadLocal<EntityManager>  ENTITYMANAGER =
       new ThreadLocal<EntityManager>();
 
   public static EntityManagerFactory getEntityManagerFactory(
       String persistenceUnitName) {
-    if (emf == null) {
+    if (null == emf) {
       emf = Persistence.createEntityManagerFactory(persistenceUnitName);
     }
     return emf;
@@ -54,7 +54,7 @@ public class EntityManagerUtil {
   public static EntityManagerFactory getEntityManagerFactory(
       String persistenceUnitName, String configuratie)
       throws IllegalArgumentException {
-    if (emf == null) {
+    if (null == emf) {
       InputStream mappings  = null;
       mappings =  EntityManagerFactory.class.getClassLoader()
                                       .getResourceAsStream(configuratie);
@@ -62,7 +62,7 @@ public class EntityManagerUtil {
       try {
         properties.load(mappings);
       } catch (IOException e) {
-        logger.error("getEntityManagerFactory: " + e.getMessage());
+        LOGGER.error("getEntityManagerFactory: " + e.getMessage());
         throw new IllegalArgumentException(DoosLayer.PERSISTENCE,
                                            "getEntityManagerFactory: "
                                            + e.getMessage());
@@ -75,23 +75,23 @@ public class EntityManagerUtil {
   }
 
   public static EntityManager getEntityManager(String persistenceUnitName) {
-    EntityManager em  = (EntityManager) entitymanager.get();
+    EntityManager em  = (EntityManager) ENTITYMANAGER.get();
 
-    if (em == null) {
+    if (null == em) {
       getEntityManagerFactory(persistenceUnitName);
       em  = emf.createEntityManager();
-      entitymanager.set(em);
+      ENTITYMANAGER.set(em);
     }
     return em;
   }
 
   public static void closeEntityManager() {
-    EntityManager em  = (EntityManager) entitymanager.get();
-    entitymanager.set(null);
-    if (em != null) {
+    EntityManager em  = (EntityManager) ENTITYMANAGER.get();
+    ENTITYMANAGER.set(null);
+    if (null != em) {
       em.close();
     }
-    if (emf == null) {
+    if (null == emf) {
       return;
     }
     emf.close();

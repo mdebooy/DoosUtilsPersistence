@@ -109,7 +109,7 @@ public class DoosFilter<T> implements CriteriaCommand<T> {
     } else if (criteria.size() == 1) {
       query.where(criteria.get(0));
     } else {
-      query.where(builder.and(criteria.toArray(new Predicate[0])));
+      query.where(builder.and(new Predicate[0]));
     }    
   }
 

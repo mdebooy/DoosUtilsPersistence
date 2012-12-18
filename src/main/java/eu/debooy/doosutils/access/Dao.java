@@ -33,6 +33,7 @@ import java.util.TreeSet;
 
 import javax.interceptor.Interceptors;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -217,8 +218,16 @@ public abstract class Dao<T extends Dto> implements Serializable {
     CriteriaQuery<T>  query     = builder.createQuery(persistentClass);
     Root<T>           from      = query.from(persistentClass);
     filter.execute(builder, from, query);
+    // TODO Waarom moet nu ineens de NoResultException opgebvangen worden?
+    T                 resultaat = null;
+    try {
+      resultaat = getEntityManager().createQuery(query).getSingleResult();
+    } catch (NoResultException e) {
+      throw new ObjectNotFoundException(DoosLayer.PERSISTENCE,
+                                        e.getMessage(), e);
+    }
 
-    return getEntityManager().createQuery(query).getSingleResult();
+    return resultaat;
   }
 
   public T update(T dto) throws DoosRuntimeException, ObjectNotFoundException {
