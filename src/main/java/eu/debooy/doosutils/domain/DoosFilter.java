@@ -98,19 +98,18 @@ public class DoosFilter<T> implements CriteriaCommand<T> {
   @Override
   public void execute(CriteriaBuilder builder, Root<T> from,
                       CriteriaQuery<T> query) {
-    List<Predicate>   criteria  = new ArrayList<Predicate>();
-    for (Filter filter : filters) {
-      criteria.add(buildCriteria(builder, from,
-                                 filter.getElement(), filter.getWaarde()));
+    if (filters.isEmpty()) {
+      return;
     }
-    if (criteria.size() == 0) {
-      throw new IllegalArgumentException(DoosLayer.PERSISTENCE,
-                                         "error.nocriteria");
-    } else if (criteria.size() == 1) {
-      query.where(criteria.get(0));
-    } else {
-      query.where(builder.and(new Predicate[0]));
-    }    
+
+    Predicate[] where = new Predicate[filters.size()];
+    for (int i = 0; i < filters.size(); i++) {
+      Filter  filter  = filters.get(i);
+      where[i]        = buildCriteria(builder, from, filter.getElement(),
+                                      filter.getWaarde());
+    }
+
+    query.where(where);
   }
 
   /**

@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
 
 
@@ -39,13 +40,21 @@ public class DoosSort<T> implements CriteriaCommand<T> {
   @Override
   public void execute(CriteriaBuilder builder, Root<T> from,
                       CriteriaQuery<T> query) {
-    for (Sort sort : sorts) {
+    if (sorts.isEmpty()) {
+      return;
+    }
+
+    Order[] orderBy = new Order[sorts.size()];
+    for (int i = 0; i < sorts.size(); i++) {
+      Sort  sort  = sorts.get(i);
       if (sort.getOrder().equals(Sort.ASC)) {
-        query.orderBy(builder.asc(from.get("name")));
+        orderBy[i]  = builder.asc(from.get(sort.getProperty()));
       } else {
-        query.orderBy(builder.desc(from.get("name")));
+        orderBy[i]  = builder.desc(from.get(sort.getProperty()));
       }
     }
+
+    query.orderBy(orderBy);
   }
 
   /**

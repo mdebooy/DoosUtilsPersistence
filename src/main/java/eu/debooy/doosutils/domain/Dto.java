@@ -33,6 +33,8 @@ import org.slf4j.Logger;
  * 
  * @author Marco de Booij
  */
+//TODO Waarom werkt dit niet?
+//@MappedSuperclass
 public abstract class Dto implements Serializable {
   private static final  long  serialVersionUID  = 1L;
 

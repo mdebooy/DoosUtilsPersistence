@@ -20,10 +20,7 @@ import eu.debooy.doosutils.domain.DoosFilter;
 import eu.debooy.doosutils.domain.DoosSort;
 import eu.debooy.doosutils.domain.Dto;
 import eu.debooy.doosutils.errorhandling.exception.DuplicateObjectException;
-import eu.debooy.doosutils.errorhandling.exception.IllegalArgumentException;
-import eu.debooy.doosutils.errorhandling.exception.ObjectNotFoundException;
 import eu.debooy.doosutils.errorhandling.exception.base.DoosLayer;
-import eu.debooy.doosutils.errorhandling.exception.base.DoosRuntimeException;
 import eu.debooy.doosutils.errorhandling.handler.interceptor.PersistenceExceptionHandlerInterceptor;
 
 import java.io.Serializable;
@@ -33,7 +30,6 @@ import java.util.TreeSet;
 
 import javax.interceptor.Interceptors;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -65,8 +61,8 @@ public abstract class Dao<T extends Dto> implements Serializable {
    * De Set is een TreeSet als de entities Comparable is. Anders een HashSet.
    * 
    * 
-   * @param entities
-   * @return een TreeSet of HashSet
+   * @param List<T> Een lijst met DTOs
+   * @return Collection<T>
    */
   public Collection<T> convertToCollection(List<T> entities) {
     if (null == entities || entities.size() == 0) {
@@ -81,17 +77,15 @@ public abstract class Dao<T extends Dto> implements Serializable {
   }
 
   /**
-   * Persist de DTO
+   * Schrijf de DTO in de database.
    * 
-   * @param dto
-   * @return
-   * @throws DoosRuntimeException
-   * @throws DuplicateObjectException
+   * @param T Een DTO.
+   * @return T
    */
-  public T create(T dto) throws DoosRuntimeException, DuplicateObjectException {
+  public T create(T dto) {
     if (getEntityManager().contains(dto)) {
         throw new DuplicateObjectException(DoosLayer.PERSISTENCE, dto,
-                                           "bestaat reeds");
+                                           "create(T dto)");
     }
 
     getEntityManager().persist(dto);
@@ -102,12 +96,11 @@ public abstract class Dao<T extends Dto> implements Serializable {
   }
 
   /**
-   * Verwijder de DTO
+   * Verwijder de DTO uit de database.
    * 
-   * @param dto
-   * @throws DoosRuntimeException
+   * @param T Een DTO
    */
-  public void delete(T dto) throws DoosRuntimeException {
+  public void delete(T dto) {
     T merged  = (T) getEntityManager().merge(dto);
     getEntityManager().remove(merged);
     getEntityManager().flush();
@@ -115,14 +108,11 @@ public abstract class Dao<T extends Dto> implements Serializable {
   }
 
   /**
-   * Haal alle rijen op.
+   * Haal alle rijen op uit de database.
    * 
-   * @return
-   * @throws DoosRuntimeException
-   * @throws ObjectNotFoundException
+   * @return Collection<T>
    */
-  public Collection<T> getAll()
-      throws DoosRuntimeException, ObjectNotFoundException {
+  public Collection<T> getAll() {
     String        findAll = "select OBJECT(rij) from "
                             + persistentClass.getSimpleName()
                             + " AS rij";
@@ -133,17 +123,12 @@ public abstract class Dao<T extends Dto> implements Serializable {
   }
 
   /**
-   * Haal alle rijen op die aan de filter voldoen.
+   * Haal alle rijen op uit de database die aan de filter voldoen.
    * 
-   * @param filter
-   * @return
-   * @throws DoosRuntimeException
-   * @throws IllegalArgumentException
-   * @throws ObjectNotFoundException
+   * @param Een filter
+   * @return Collection<T>
    */
-  public Collection<T> getAll(DoosFilter<T> filter)
-      throws DoosRuntimeException, IllegalArgumentException,
-             ObjectNotFoundException {
+  public Collection<T> getAll(DoosFilter<T> filter) {
     CriteriaBuilder   builder   = getEntityManager().getCriteriaBuilder();
     CriteriaQuery<T>  query     = builder.createQuery(persistentClass);
     Root<T>           from      = query.from(persistentClass);
@@ -154,18 +139,14 @@ public abstract class Dao<T extends Dto> implements Serializable {
   }
 
   /**
-   * Haal alle rijen op die aan de filter voldoen gesorteerd op sort.
+   * Haal alle rijen op uit de database die aan de filter voldoen gesorteerd op
+   * sort.
    * 
-   * @param filter
-   * @param sort
-   * @return
-   * @throws DoosRuntimeException
-   * @throws IllegalArgumentException
-   * @throws ObjectNotFoundException
+   * @param DoosFilter<T> Een filter
+   * @param DoosSort<T> Sorteer parameters
+   * @return Collection<T>
    */
-  public Collection<T> getAll(DoosFilter<T> filter, DoosSort<T> sort)
-      throws DoosRuntimeException, IllegalArgumentException,
-             ObjectNotFoundException {
+  public Collection<T> getAll(DoosFilter<T> filter, DoosSort<T> sort) {
     CriteriaBuilder   builder   = getEntityManager().getCriteriaBuilder();
     CriteriaQuery<T>  query     = builder.createQuery(persistentClass);
     Root<T>           from      = query.from(persistentClass);
@@ -179,13 +160,11 @@ public abstract class Dao<T extends Dto> implements Serializable {
   /**
    * Haal alle rijen op gesorteerd op sort.
    * 
-   * @param sort
-   * @return
-   * @throws DoosRuntimeException
-   * @throws ObjectNotFoundException
+   * @param DoosSort<T> Sorteer parameters
+   * 
+   * @return Collection<T>
    */
-  public Collection<T> getAll(DoosSort<T> sort)
-      throws DoosRuntimeException, ObjectNotFoundException {
+  public Collection<T> getAll(DoosSort<T> sort) {
     CriteriaBuilder   builder   = getEntityManager().getCriteriaBuilder();
     CriteriaQuery<T>  query     = builder.createQuery(persistentClass);
     Root<T>           from      = query.from(persistentClass);
@@ -195,42 +174,49 @@ public abstract class Dao<T extends Dto> implements Serializable {
                                                  .getResultList());
   }
 
-  public abstract String  getApplicationName();
+  public abstract String  getApplicatieNaam();
 
   /**
    * Krijg de entiteit via de Primary Key
-   * @param primaryKey
-   * @return
-   * @throws DoosRuntimeException
-   * @throws ObjectNotFoundException
+   *
+   * @param Object primaryKey
+   * @return T
    */
-  public T getByPrimaryKey(Object primaryKey)
-      throws DoosRuntimeException, ObjectNotFoundException {
+  public T getByPrimaryKey(Object primaryKey) {
     return getEntityManager().find(persistentClass, primaryKey);
   }
 
+  /**
+   * Geef de logger.
+   * 
+   * @return Logger
+   */
   public abstract Logger  getLogger();
 
-  public T getUniqueResult(DoosFilter<T> filter)
-      throws DoosRuntimeException, IllegalArgumentException,
-             ObjectNotFoundException {
+  /**
+   * Geef de dto die behoort bij de gevraagde filter.
+   * 
+   * @param DoosFilter<T> Een filter
+   * @return T
+   */
+  public T getUniqueResult(DoosFilter<T> filter) {
     CriteriaBuilder   builder   = getEntityManager().getCriteriaBuilder();
     CriteriaQuery<T>  query     = builder.createQuery(persistentClass);
     Root<T>           from      = query.from(persistentClass);
     filter.execute(builder, from, query);
-    // TODO Waarom moet nu ineens de NoResultException opgebvangen worden?
-    T                 resultaat = null;
-    try {
-      resultaat = getEntityManager().createQuery(query).getSingleResult();
-    } catch (NoResultException e) {
-      throw new ObjectNotFoundException(DoosLayer.PERSISTENCE,
-                                        e.getMessage(), e);
-    }
+    T                 resultaat = getEntityManager().createQuery(query)
+                                                    .getSingleResult();
 
     return resultaat;
   }
 
-  public T update(T dto) throws DoosRuntimeException, ObjectNotFoundException {
+  /**
+   * Wijzig de data in de database.
+   *  
+   * @param T Een DTO
+   * @return T
+   */
+  public T update(T dto) {
     T updated = (T) getEntityManager().merge(dto);
     getEntityManager().persist(updated);
     getEntityManager().flush();
