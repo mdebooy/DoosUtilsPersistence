@@ -21,6 +21,7 @@ import eu.debooy.doosutils.errorhandling.exception.IllegalArgumentException;
 import eu.debooy.doosutils.errorhandling.exception.base.DoosLayer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -81,6 +82,9 @@ public class DoosFilter<T> implements CriteriaCommand<T> {
         return builder.equal(from.<Date>get(element), ((Date) waarde));
       } else if (waarde instanceof Number) {
         return builder.equal(from.<Number>get(element), ((Number) waarde));
+      } else if (waarde instanceof Boolean) {
+        // Booleans overslaan
+        return null;
       } else {
         throw new IllegalArgumentException(DoosLayer.PERSISTENCE,
                                            "error.illegaltype");
@@ -102,14 +106,19 @@ public class DoosFilter<T> implements CriteriaCommand<T> {
       return;
     }
 
+    int j = 0;
     Predicate[] where = new Predicate[filters.size()];
     for (int i = 0; i < filters.size(); i++) {
-      Filter  filter  = filters.get(i);
-      where[i]        = buildCriteria(builder, from, filter.getElement(),
-                                      filter.getWaarde());
+      Filter    filter    = filters.get(i);
+      Predicate predicaat = buildCriteria(builder, from, filter.getElement(),
+                                          filter.getWaarde());
+      if (null != predicaat) {
+        where[j]  = predicaat;
+        j++;
+      }
     }
 
-    query.where(where);
+    query.where(Arrays.copyOf(where, j));
   }
 
   /**
