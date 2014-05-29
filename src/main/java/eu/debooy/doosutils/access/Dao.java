@@ -20,6 +20,7 @@ import eu.debooy.doosutils.domain.DoosFilter;
 import eu.debooy.doosutils.domain.DoosSort;
 import eu.debooy.doosutils.domain.Dto;
 import eu.debooy.doosutils.errorhandling.exception.DuplicateObjectException;
+import eu.debooy.doosutils.errorhandling.exception.ObjectNotFoundException;
 import eu.debooy.doosutils.errorhandling.exception.base.DoosLayer;
 import eu.debooy.doosutils.errorhandling.handler.interceptor.PersistenceExceptionHandlerInterceptor;
 
@@ -112,7 +113,7 @@ public abstract class Dao<T extends Dto> implements Serializable {
    * 
    * @return Collection<T>
    */
-  public Collection<T> getAll() {
+  public Collection<T> getAll() throws ObjectNotFoundException {
     String        findAll = "select OBJECT(rij) from "
                             + persistentClass.getSimpleName()
                             + " AS rij";
@@ -128,7 +129,8 @@ public abstract class Dao<T extends Dto> implements Serializable {
    * @param Een filter
    * @return Collection<T>
    */
-  public Collection<T> getAll(DoosFilter<T> filter) {
+  public Collection<T> getAll(DoosFilter<T> filter)
+      throws ObjectNotFoundException {
     CriteriaBuilder   builder   = getEntityManager().getCriteriaBuilder();
     CriteriaQuery<T>  query     = builder.createQuery(persistentClass);
     Root<T>           from      = query.from(persistentClass);
@@ -146,7 +148,8 @@ public abstract class Dao<T extends Dto> implements Serializable {
    * @param DoosSort<T> Sorteer parameters
    * @return Collection<T>
    */
-  public Collection<T> getAll(DoosFilter<T> filter, DoosSort<T> sort) {
+  public Collection<T> getAll(DoosFilter<T> filter, DoosSort<T> sort)
+      throws ObjectNotFoundException {
     CriteriaBuilder   builder   = getEntityManager().getCriteriaBuilder();
     CriteriaQuery<T>  query     = builder.createQuery(persistentClass);
     Root<T>           from      = query.from(persistentClass);
@@ -164,7 +167,7 @@ public abstract class Dao<T extends Dto> implements Serializable {
    * 
    * @return Collection<T>
    */
-  public Collection<T> getAll(DoosSort<T> sort) {
+  public Collection<T> getAll(DoosSort<T> sort) throws ObjectNotFoundException {
     CriteriaBuilder   builder   = getEntityManager().getCriteriaBuilder();
     CriteriaQuery<T>  query     = builder.createQuery(persistentClass);
     Root<T>           from      = query.from(persistentClass);
@@ -182,7 +185,7 @@ public abstract class Dao<T extends Dto> implements Serializable {
    * @param Object primaryKey
    * @return T
    */
-  public T getByPrimaryKey(Object primaryKey) {
+  public T getByPrimaryKey(Object primaryKey) throws ObjectNotFoundException {
     return getEntityManager().find(persistentClass, primaryKey);
   }
 
@@ -199,7 +202,8 @@ public abstract class Dao<T extends Dto> implements Serializable {
    * @param DoosFilter<T> Een filter
    * @return T
    */
-  public T getUniqueResult(DoosFilter<T> filter) {
+  public T getUniqueResult(DoosFilter<T> filter)
+      throws ObjectNotFoundException {
     CriteriaBuilder   builder   = getEntityManager().getCriteriaBuilder();
     CriteriaQuery<T>  query     = builder.createQuery(persistentClass);
     Root<T>           from      = query.from(persistentClass);
