@@ -61,7 +61,7 @@ public class DoosFilter<T> implements CriteriaCommand<T> {
    * Maak de criteria.
    * 
    * @param builder
-   * @param from
+   * @param fromStringBuffer
    * @param element
    * @param waarde
    */
@@ -126,7 +126,7 @@ public class DoosFilter<T> implements CriteriaCommand<T> {
    */
   @Override
   public String toString() {
-    StringBuffer  sb  = new StringBuffer();
+    StringBuilder sb  = new StringBuilder();
 
     for (Filter filter : filters) {
       Object  waarde  = filter.getWaarde();

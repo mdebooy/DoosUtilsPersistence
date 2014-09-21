@@ -80,7 +80,7 @@ public class Filter implements Serializable {
    */
   @Override
   public final String toString() {
-    StringBuffer  result  = new StringBuffer();
+    StringBuilder result  = new StringBuilder();
 
     result.append("element: ").append(element)
           .append(" - waarde: ").append(waarde);

@@ -231,7 +231,7 @@ public abstract class Dto implements Serializable {
    */
   @Override
   public String toString() {
-    StringBuffer  sb        = new StringBuffer();
+    StringBuilder sb        = new StringBuilder();
     String        attribute = null;
     Object        waarde    = null;
 

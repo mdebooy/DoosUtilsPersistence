@@ -93,7 +93,7 @@ public class Sort implements Serializable, Comparable<Sort> {
    */
   @Override
   public final String toString() {
-    StringBuffer  result  = new StringBuffer();
+    StringBuilder result  = new StringBuilder();
 
     result.append("property: ").append(property)
           .append(" - order: ").append(order);

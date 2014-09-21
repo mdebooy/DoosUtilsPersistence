@@ -71,7 +71,7 @@ public class DoosSort<T> implements CriteriaCommand<T> {
    */
   @Override
   public String toString() {
-    StringBuffer  sb  = new StringBuffer();
+    StringBuilder sb  = new StringBuilder();
 
     for (Sort sort : sorts) {
       sb.append(", ").append(sort.getProperty())
