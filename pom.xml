@@ -3,7 +3,7 @@
   <parent>
     <artifactId>doosutils</artifactId>
     <groupId>eu.debooy.doosutils</groupId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.3.0</version>
   </parent>
   <artifactId>doosutils-persistence</artifactId>
   <name>Utility classes voor DOOS Applicaties (Persistence)</name>
