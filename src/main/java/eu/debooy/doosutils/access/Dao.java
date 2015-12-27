@@ -21,21 +21,16 @@ import eu.debooy.doosutils.domain.DoosSort;
 import eu.debooy.doosutils.domain.Dto;
 import eu.debooy.doosutils.errorhandling.exception.DuplicateObjectException;
 import eu.debooy.doosutils.errorhandling.exception.base.DoosLayer;
-import eu.debooy.doosutils.errorhandling.handler.interceptor.PersistenceExceptionHandlerInterceptor;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;
 
-import javax.interceptor.Interceptors;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-
-import org.slf4j.Logger;
 
 
 /**
@@ -43,10 +38,13 @@ import org.slf4j.Logger;
  * 
  * @author Marco de Booij
  */
-@Interceptors({PersistenceExceptionHandlerInterceptor.class})
-public abstract class Dao<T extends Dto> implements Serializable {
-  private static final  long  serialVersionUID = 1L;
-
+public abstract class Dao<T extends Dto> {
+  /**
+   * Maakt het mogelijk om de Entity Manager in the extended class te definieren
+   * en toch hier te gebruiken.
+   *  
+   * @return De Entity Manager
+   */
   protected abstract  EntityManager getEntityManager();
 
   private Class<T>  dto;
@@ -174,8 +172,6 @@ public abstract class Dao<T extends Dto> implements Serializable {
                                                  .getResultList());
   }
 
-  public abstract String  getApplicatieNaam();
-
   /**
    * Krijg de entiteit via de Primary Key
    *
@@ -185,13 +181,6 @@ public abstract class Dao<T extends Dto> implements Serializable {
   public T getByPrimaryKey(Object primaryKey) {
     return getEntityManager().find(dto, primaryKey);
   }
-
-  /**
-   * Geef de logger.
-   * 
-   * @return Logger
-   */
-  public abstract Logger  getLogger();
 
   /**
    * Geef de dto die behoort bij de gevraagde filter.
