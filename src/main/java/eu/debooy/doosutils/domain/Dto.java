@@ -81,8 +81,10 @@ public abstract class Dto implements Serializable {
    */
   private boolean isCollectionModified(Collection<?> collection,
                                        Collection<?> oldCollection) {
-    if ((null != collection && null == oldCollection)
-        || (null == collection && null != oldCollection)) {
+    if (null != collection && null == oldCollection) {
+      return true;
+    }
+    if (null == collection && null != oldCollection) {
       return true;
     }
     if (null == collection && null == oldCollection) {

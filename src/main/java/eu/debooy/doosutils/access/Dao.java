@@ -64,7 +64,7 @@ public abstract class Dao<T extends Dto> {
    */
   public Collection<T> convertToCollection(List<T> entities) {
     if (null == entities || entities.size() == 0) {
-      return null;
+      return new TreeSet<T>();
     }
 
     if (entities.get(0) instanceof Comparable<?>) {
