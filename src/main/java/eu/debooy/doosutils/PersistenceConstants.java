@@ -29,18 +29,22 @@ public final class PersistenceConstants {
   public static final char  DELETE    = 'D';
   public static final char  SEARCH    = 'S';
 
-  public static final String  CREATED   = "info.create";
-  public static final String  DELETED   = "info.delete";
-  public static final String  DUPLICATE = "errors.duplicate";
-  public static final String  EMPTY     = "errors.empty";
-  public static final String  FIXLENGTH = "errors.fixlength";
-  public static final String  FUTURE    = "errors.date.future";
-  public static final String  MAXLENGTH = "errors.maxlength";
-  public static final String  NOROWS    = "info.norows";
-  public static final String  NOTFOUND  = "errors.notfound";
-  public static final String  RANGE     = "errors.range";
-  public static final String  REQUIRED  = "errors.required";
-  public static final String  SEARCHED  = "info.search";
-  public static final String  UPDATED   = "info.update";
-  public static final String  WRONGDATE = "errors.date";
+  public static final String  CREATED     = "info.create";
+  public static final String  DELETED     = "info.delete";
+  public static final String  DUPLICATE   = "errors.duplicate";
+  public static final String  EMPTY       = "errors.empty";
+  public static final String  FIXLENGTH   = "errors.fixlength";
+  public static final String  FUTURE      = "errors.date.future";
+  public static final String  ISGROTER    = "errors.is.groter";
+  public static final String  ISKLEINER   = "errors.is.kleiner";
+  public static final String  MAXLENGTH   = "errors.maxlength";
+  public static final String  NIETGROTER  = "errors.niet.groter";
+  public static final String  NIETKLEINER = "errors.niet.kleiner";
+  public static final String  NOROWS      = "info.norows";
+  public static final String  NOTFOUND    = "errors.notfound";
+  public static final String  RANGE       = "errors.range";
+  public static final String  REQUIRED    = "errors.required";
+  public static final String  SEARCHED    = "info.search";
+  public static final String  UPDATED     = "info.update";
+  public static final String  WRONGDATE   = "errors.date";
 }

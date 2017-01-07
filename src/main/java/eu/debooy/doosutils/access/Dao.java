@@ -21,11 +21,11 @@ import eu.debooy.doosutils.domain.DoosSort;
 import eu.debooy.doosutils.domain.Dto;
 import eu.debooy.doosutils.errorhandling.exception.DuplicateObjectException;
 import eu.debooy.doosutils.errorhandling.exception.base.DoosLayer;
+import eu.debooy.doosutils.errorhandling.handler.interceptor.PersistenceExceptionHandlerInterceptor;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.TreeSet;
 
+import javax.interceptor.Interceptors;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -38,6 +38,7 @@ import javax.persistence.criteria.Root;
  * 
  * @author Marco de Booij
  */
+@Interceptors({PersistenceExceptionHandlerInterceptor.class})
 public abstract class Dao<T extends Dto> {
   /**
    * Maakt het mogelijk om de Entity Manager in the extended class te definieren
@@ -51,27 +52,6 @@ public abstract class Dao<T extends Dto> {
 
   public Dao(Class<T> dto) {
     this.dto  = dto;
-  }
-
-  /**
-   * Converteer een List in een Set.
-   * 
-   * De Set is een TreeSet als de entities Comparable is. Anders een HashSet.
-   * 
-   * 
-   * @param List<T> Een lijst met DTOs
-   * @return Collection<T>
-   */
-  public Collection<T> convertToCollection(List<T> entities) {
-    if (null == entities || entities.size() == 0) {
-      return new TreeSet<T>();
-    }
-
-    if (entities.get(0) instanceof Comparable<?>) {
-      return new TreeSet<T>(entities);
-    } else {
-      return entities;
-    }
   }
 
   /**
@@ -108,32 +88,31 @@ public abstract class Dao<T extends Dto> {
   /**
    * Haal alle rijen op uit de database.
    * 
-   * @return Collection<T>
+   * @return List<T>
    */
-  public Collection<T> getAll() {
-    String        findAll = "select OBJECT(rij) from "
-                            + dto.getSimpleName()
-                            + " AS rij";
-    TypedQuery<T> query   =
-        getEntityManager().createQuery(findAll, dto);
+  public List<T> getAll() {
+    CriteriaBuilder   builder   = getEntityManager().getCriteriaBuilder();
+    CriteriaQuery<T>  query     = builder.createQuery(dto);
+    Root<T>           from      = query.from(dto);
+    CriteriaQuery<T>  all       = query.select(from);
+    TypedQuery<T>     allQuery  = getEntityManager().createQuery(all);
 
-    return convertToCollection(query.getResultList());
+    return allQuery.getResultList();
   }
 
   /**
    * Haal alle rijen op uit de database die aan de filter voldoen.
    * 
    * @param Een filter
-   * @return Collection<T>
+   * @return List<T>
    */
-  public Collection<T> getAll(DoosFilter<T> filter) {
+  public List<T> getAll(DoosFilter<T> filter) {
     CriteriaBuilder   builder   = getEntityManager().getCriteriaBuilder();
     CriteriaQuery<T>  query     = builder.createQuery(dto);
     Root<T>           from      = query.from(dto);
     filter.execute(builder, from, query);
 
-    return convertToCollection(getEntityManager().createQuery(query)
-                                                 .getResultList());
+    return getEntityManager().createQuery(query).getResultList();
   }
 
   /**
@@ -142,17 +121,16 @@ public abstract class Dao<T extends Dto> {
    * 
    * @param DoosFilter<T> Een filter
    * @param DoosSort<T> Sorteer parameters
-   * @return Collection<T>
+   * @return List<T>
    */
-  public Collection<T> getAll(DoosFilter<T> filter, DoosSort<T> sort) {
+  public List<T> getAll(DoosFilter<T> filter, DoosSort<T> sort) {
     CriteriaBuilder   builder   = getEntityManager().getCriteriaBuilder();
     CriteriaQuery<T>  query     = builder.createQuery(dto);
     Root<T>           from      = query.from(dto);
     filter.execute(builder, from, query);
     sort.execute(builder, from, query);
 
-    return convertToCollection(getEntityManager().createQuery(query)
-                                                 .getResultList());
+    return getEntityManager().createQuery(query).getResultList();
   }
 
   /**
@@ -160,16 +138,15 @@ public abstract class Dao<T extends Dto> {
    * 
    * @param DoosSort<T> Sorteer parameters
    * 
-   * @return Collection<T>
+   * @return List<T>
    */
-  public Collection<T> getAll(DoosSort<T> sort) {
+  public List<T> getAll(DoosSort<T> sort) {
     CriteriaBuilder   builder   = getEntityManager().getCriteriaBuilder();
     CriteriaQuery<T>  query     = builder.createQuery(dto);
     Root<T>           from      = query.from(dto);
     sort.execute(builder, from, query);
 
-    return convertToCollection(getEntityManager().createQuery(query)
-                                                 .getResultList());
+    return getEntityManager().createQuery(query).getResultList();
   }
 
   /**

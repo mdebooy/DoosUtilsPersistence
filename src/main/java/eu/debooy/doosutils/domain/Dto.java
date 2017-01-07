@@ -33,8 +33,6 @@ import org.slf4j.Logger;
  * 
  * @author Marco de Booij
  */
-//TODO Waarom werkt dit niet?
-//@MappedSuperclass
 public abstract class Dto implements Serializable {
   private static final  long  serialVersionUID  = 1L;
 
@@ -66,7 +64,9 @@ public abstract class Dto implements Serializable {
   }
 
   /**
-   * @return
+   * Geef de LOGGER van de extended class.
+   * 
+   * @return Logger
    */
   public Logger getLogger() {
     return null;
@@ -231,7 +231,6 @@ public abstract class Dto implements Serializable {
   /**
    * Maak een String van alle attributen die via een getter te benaderen zijn.
    */
-  @Override
   public String toString() {
     StringBuilder sb        = new StringBuilder();
     String        attribute = null;
