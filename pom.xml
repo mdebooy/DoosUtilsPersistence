@@ -8,13 +8,13 @@
   <groupId>eu.debooy.doosutils</groupId>
   <artifactId>doosutils-persistence</artifactId>
   <packaging>jar</packaging>
-  <version>2.0.0</version>
+  <version>2.0.1-SNAPSHOT</version>
   <name>Utility classes voor DOOS Applicaties (Persistence)</name>
   <description>Utility classes voor Persistence.</description>
   <inceptionYear>2009</inceptionYear>
   <scm>
-    <developerConnection>scm:svn:http://svn.debooy.eu/svn/doosutils/tags/doosutils-persistence-2.0.0</developerConnection>
-    <connection>scm:svn:http://svn.debooy.eu/svn/doosutils/tags/doosutils-persistence-2.0.0</connection>
+    <developerConnection>scm:svn:http://svn.debooy.eu/svn/doosutils/trunk/doosutils-persistence</developerConnection>
+    <connection>scm:svn:http://svn.debooy.eu/svn/doosutils/trunk/doosutils-persistence</connection>
   </scm>
 
   <developers>
