@@ -4,7 +4,6 @@
     <groupId>eu.debooy.maven</groupId>
     <artifactId>pom</artifactId>
     <version>2.2.2-SNAPSHOT</version>
-    <relativePath></relativePath>
   </parent>
   <groupId>eu.debooy.doosutils</groupId>
   <artifactId>doosutils-persistence</artifactId>
