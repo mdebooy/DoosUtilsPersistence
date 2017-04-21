@@ -18,6 +18,10 @@ package eu.debooy.doosutils;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 
 /**
  * @author Marco de Booij
@@ -44,54 +48,28 @@ public class Sort implements Serializable, Comparable<Sort> {
     return order;
   }
 
-  public final int compareTo(Sort obj) {
-    return (property+"|"+order).compareTo(obj.property+"|"+obj.order);
+  public final int compareTo(Sort andere) {
+    return new CompareToBuilder().append(property, andere.property)
+                                 .append(order, andere.order).toComparison();
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
-  @Override
-  public final boolean equals(Object obj) {
-    if (this == obj) {
+  public final boolean equals(Object object) {
+    if (!(object instanceof Sort)) {
+      return false;
+    }
+    if (object == this) {
       return true;
     }
-    if (!super.equals(obj)) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
 
-    final Sort  other = (Sort) obj;
-    if (order != other.order) {
-      return false;
-    }
-    if (property != other.property) {
-      return false;
-    }
-
-    return true;
+    Sort  andere  = (Sort) object;
+    return new EqualsBuilder().append(property, andere.property)
+                              .append(order, andere.order).isEquals();
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#hashCode()
-   */
-  @Override
   public final int hashCode() {
-    final int prime     = 31;
-    int       result    = super.hashCode();
-
-    result  = prime * result + (null == order ? 0 : order.hashCode());
-    result  = prime * result + (null == property ? 0 : property.hashCode());
-
-    return result;
+    return new HashCodeBuilder().append(property).append(order).toHashCode();
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
-  @Override
   public final String toString() {
     StringBuilder result  = new StringBuilder();
 

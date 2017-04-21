@@ -67,29 +67,34 @@ public class DoosFilter<T> implements CriteriaCommand<T> {
    */
   private Predicate buildCriteria(CriteriaBuilder builder, Root<T> from,
                                   String element, Object waarde) {
+    Predicate predicate	= null;
     if (null == waarde) {
-      return builder.isNull(from.get(element));
+      predicate = builder.isNull(from.get(element));
     } else {
       if (waarde instanceof String) {
         if (((String) waarde).contains("%")) {
-          return builder.like(builder.upper(from.<String>get(element)),
-                                            ((String) waarde).toUpperCase());
+          predicate =
+              builder.like(builder.upper(from.<String>get(element)),
+                                         ((String) waarde).toUpperCase());
         } else {
-          return builder.equal(builder.upper(from.<String>get(element)),
-                                             ((String) waarde).toUpperCase());
+          predicate =
+              builder.equal(builder.upper(from.<String>get(element)),
+                                          ((String) waarde).toUpperCase());
         }
       } else if (waarde instanceof Date) {
-        return builder.equal(from.<Date>get(element), ((Date) waarde));
+        predicate = builder.equal(from.<Date>get(element), ((Date) waarde));
       } else if (waarde instanceof Number) {
-        return builder.equal(from.<Number>get(element), ((Number) waarde));
+        predicate = builder.equal(from.<Number>get(element), ((Number) waarde));
       } else if (waarde instanceof Boolean) {
         // Booleans overslaan
-        return null;
+        predicate = null;
       } else {
         throw new IllegalArgumentException(DoosLayer.PERSISTENCE,
                                            "error.illegaltype");
       }
     }
+
+    return predicate;
   }
 
   /**
