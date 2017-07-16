@@ -35,6 +35,7 @@ public final class PersistenceConstants {
   public static final String  EMPTY       = "errors.empty";
   public static final String  FIXLENGTH   = "errors.fixlength";
   public static final String  FUTURE      = "errors.date.future";
+  public static final String  INVALID     = "errors.invalid";
   public static final String  ISGROTER    = "errors.is.groter";
   public static final String  ISKLEINER   = "errors.is.kleiner";
   public static final String  MAXLENGTH   = "errors.maxlength";
