@@ -13,8 +13,8 @@
   <description>Utility classes voor Persistence.</description>
   <inceptionYear>2009</inceptionYear>
   <scm>
-    <developerConnection>scm:git:ssh://ptah.debooy.eu/srv/git/debooy/doosutils.git/doosutils-persistence</developerConnection>
-    <connection>scm:git:ssh://ptah.debooy.eu/srv/git/debooy/doosutils.git/doosutils-persistence</connection>
+    <developerConnection>scm:git:ssh://ptah.debooy.eu/srv/git/debooy/DoosUtilsPersistence.git</developerConnection>
+    <connection>scm:git:ssh://ptah.debooy.eu/srv/git/debooy/DoosUtilsPersistence.git</connection>
   </scm>
 
   <developers>
