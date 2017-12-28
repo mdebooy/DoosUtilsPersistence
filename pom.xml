@@ -3,18 +3,19 @@
   <parent>
     <groupId>eu.debooy.maven</groupId>
     <artifactId>pom</artifactId>
-    <version>2.2.2-SNAPSHOT</version>
+    <version>2.2.2</version>
   </parent>
   <groupId>eu.debooy.doosutils</groupId>
   <artifactId>doosutils-persistence</artifactId>
   <packaging>jar</packaging>
-  <version>2.0.1-SNAPSHOT</version>
+  <version>2.0.1</version>
   <name>Utility classes voor DOOS Applicaties (Persistence)</name>
   <description>Utility classes voor Persistence.</description>
   <inceptionYear>2009</inceptionYear>
   <scm>
     <developerConnection>scm:git:ssh://ptah.debooy.eu/srv/git/debooy/DoosUtilsPersistence.git</developerConnection>
     <connection>scm:git:ssh://ptah.debooy.eu/srv/git/debooy/DoosUtilsPersistence.git</connection>
+    <tag>doosutils-persistence-2.0.1</tag>
   </scm>
 
   <developers>
@@ -44,7 +45,7 @@
     <dependency>
       <groupId>eu.debooy.doosutils</groupId>
       <artifactId>doosutils-core</artifactId>
-      <version>2.0.1-SNAPSHOT</version>
+      <version>2.0.1</version>
     </dependency>
     <dependency>
       <groupId>eu.debooy.doosutils</groupId>
