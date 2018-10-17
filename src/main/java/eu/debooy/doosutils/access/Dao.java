@@ -34,6 +34,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import org.apache.openjpa.util.ObjectNotFoundException;
+
 
 /**
  * Data Access Object pattern.
@@ -109,10 +111,18 @@ public abstract class Dao<T extends Dto> {
     CriteriaQuery<T>  query     = builder.createQuery(dto);
     Root<T>           from      = query.from(dto);
     filter.execute(builder, from, query);
-    T                 resultaat = getEntityManager().createQuery(query)
-                                                    .getSingleResult();
+    List<T>           resultaat = query(query);
+    if (resultaat.isEmpty()) {
+      throw new ObjectNotFoundException("getUniqueResult(" + filter.toString()
+                                        + ")");
+    }
+    if (resultaat.size() > 1) {
+      throw new DuplicateObjectException(DoosLayer.PERSISTENCE, dto,
+                                         "getUniqueResult(" + filter.toString()
+                                         + ")");
+    }
 
-    return resultaat;
+    return resultaat.get(0);
   }
 
   public List<T> namedQuery(String querynaam) {
