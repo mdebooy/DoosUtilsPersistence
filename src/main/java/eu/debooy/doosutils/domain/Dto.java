@@ -23,7 +23,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 
@@ -36,8 +38,12 @@ import org.slf4j.Logger;
 public abstract class Dto implements Serializable {
   private static final  long  serialVersionUID  = 1L;
 
-  private static final  String[]  GET_METHODS_PREFIXES  = {"get", "is"};
-  private static final  String    LIKE                  = "%";
+  private static final  Set<String> EXCLUDE_METHODS       =
+      new HashSet<String>() {
+        private static final  long  serialVersionUID      = 1L;
+              {add("Class"); add("Logger");}};
+  private static final  String[]    GET_METHODS_PREFIXES  = {"get", "is"};
+  private static final  String      LIKE                  = "%";
 
   /**
    * Zoek alle 'getters'.
@@ -155,11 +161,8 @@ public abstract class Dto implements Serializable {
         }
       }
       return modified;
-    } catch (InvocationTargetException e) {
-      return true;
-    } catch (IllegalArgumentException e) {
-      return true;
-    } catch (IllegalAccessException e) {
+    } catch (IllegalAccessException | IllegalArgumentException
+             | InvocationTargetException e) {
       return true;
     }
   }
@@ -188,8 +191,7 @@ public abstract class Dto implements Serializable {
       if (method.getName().startsWith("get")) {
         try {
           attribute = method.getName().substring(3);
-          if (!attribute.equals("Class")
-              && !attribute.equals("Logger")) {
+          if (!EXCLUDE_METHODS.contains(attribute)) {
             attribute = attribute.substring(0, 1).toLowerCase()
                         + attribute.substring(1);
             waarde    = method.invoke(this);
@@ -203,22 +205,11 @@ public abstract class Dto implements Serializable {
               filter.addFilter(attribute, waarde);
             }
           }
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalAccessException | IllegalArgumentException
+                 | InvocationTargetException e) {
           Logger  logger  = getLogger();
           if (null != logger) {
-            logger.error("makeFilter IllegalArgumentException: "
-                         + e.getMessage());
-          }
-        } catch (IllegalAccessException e) {
-          Logger  logger  = getLogger();
-          if (null != logger) {
-            logger.error("makeFilter IllegalAccessException: "
-                         + e.getMessage());
-          }
-        } catch (InvocationTargetException e) {
-          Logger  logger  = getLogger();
-          if (null != logger) {
-            logger.error("makeFilter InvocationTargetException: "
+            logger.error("makeFilter" + e.getClass().getName() + ": "
                          + e.getMessage());
           }
         }
@@ -261,20 +252,12 @@ public abstract class Dto implements Serializable {
         } else {
           sb.append("<null>");
         }
-      } catch (IllegalArgumentException e) {
+      } catch (IllegalAccessException | IllegalArgumentException
+               | InvocationTargetException e) {
         Logger  logger  = getLogger();
         if (null != logger) {
-          logger.error("toString IllegalArgumentException: " + e.getMessage());
-        }
-      } catch (IllegalAccessException e) {
-        Logger  logger  = getLogger();
-        if (null != logger) {
-          logger.error("toString IllegalAccessException: " + e.getMessage());
-        }
-      } catch (InvocationTargetException e) {
-        Logger  logger  = getLogger();
-        if (null != logger) {
-          logger.error("toString InvocationTargetException: " + e.getMessage());
+          logger.error("toString" + e.getClass().getName() + ": "
+                  + e.getMessage());
         }
       }
     }
