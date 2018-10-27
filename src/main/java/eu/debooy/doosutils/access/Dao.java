@@ -20,6 +20,7 @@ import eu.debooy.doosutils.domain.DoosFilter;
 import eu.debooy.doosutils.domain.DoosSort;
 import eu.debooy.doosutils.domain.Dto;
 import eu.debooy.doosutils.errorhandling.exception.DuplicateObjectException;
+import eu.debooy.doosutils.errorhandling.exception.ObjectNotFoundException;
 import eu.debooy.doosutils.errorhandling.exception.base.DoosLayer;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import org.apache.openjpa.util.ObjectNotFoundException;
+import org.apache.openjpa.persistence.EntityExistsException;
 
 
 /**
@@ -52,12 +53,12 @@ public abstract class Dao<T extends Dto> {
   }
 
   public T create(T dto) {
-    if (getEntityManager().contains(dto)) {
+    try {
+      getEntityManager().persist(dto);
+    } catch (EntityExistsException e) {
       throw new DuplicateObjectException(DoosLayer.PERSISTENCE, dto,
                                          "create(T dto)");
     }
-
-    getEntityManager().persist(dto);
     getEntityManager().flush();
     getEntityManager().refresh(dto);
 
@@ -102,8 +103,16 @@ public abstract class Dao<T extends Dto> {
     return getAll(null, sort);
   }
 
-  public T getByPrimaryKey(Object primaryKey) {
-    return getEntityManager().find(dto, primaryKey);
+  public T getByPrimaryKey(Object sleutel) {
+    T entry = getEntityManager().find(dto, sleutel);
+
+    if (null == entry) {
+      throw new ObjectNotFoundException(DoosLayer.PERSISTENCE,
+                                        "getByPrimaryKey("
+                                          + sleutel.toString() + ")");
+    }
+
+    return entry;
   }
 
   public T getUniqueResult(DoosFilter<T> filter) {
@@ -113,13 +122,14 @@ public abstract class Dao<T extends Dto> {
     filter.execute(builder, from, query);
     List<T>           resultaat = query(query);
     if (resultaat.isEmpty()) {
-      throw new ObjectNotFoundException("getUniqueResult(" + filter.toString()
-                                        + ")");
+      throw new ObjectNotFoundException(DoosLayer.PERSISTENCE,
+                                        "getUniqueResult(" + filter.toString()
+                                          + ")");
     }
     if (resultaat.size() > 1) {
       throw new DuplicateObjectException(DoosLayer.PERSISTENCE, dto,
                                          "getUniqueResult(" + filter.toString()
-                                         + ")");
+                                           + ")");
     }
 
     return resultaat.get(0);
