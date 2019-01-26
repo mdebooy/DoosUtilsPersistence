@@ -52,8 +52,7 @@ public final class EntityManagerUtil {
   }
 
   public static EntityManagerFactory getEntityManagerFactory(
-      String persistenceUnitName, String configuratie)
-      throws IllegalArgumentException {
+      String persistenceUnitName, String configuratie) {
     if (null == emf) {
       InputStream mappings  = null;
       mappings =  EntityManagerFactory.class.getClassLoader()
