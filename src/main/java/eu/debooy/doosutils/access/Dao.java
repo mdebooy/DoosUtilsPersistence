@@ -135,6 +135,21 @@ public abstract class Dao<T extends Dto> {
     return resultaat.get(0);
   }
 
+  public Long namedNonSelect(String querynaam) {
+    return namedNonSelect(querynaam, new HashMap<String, Object>());
+  }
+
+  public Long namedNonSelect(String querynaam,
+                                   Map<String, Object> params) {
+    Query query = getEntityManager().createNamedQuery(querynaam);
+
+    for (Map.Entry<String, Object> entry : params.entrySet()) {
+      query.setParameter((String)entry.getKey(), entry.getValue());
+    }
+
+    return Long.valueOf(query.executeUpdate());
+  }
+
   public List<T> namedQuery(String querynaam) {
     return namedQuery(querynaam, new HashMap<String, Object>());
   }
@@ -156,12 +171,12 @@ public abstract class Dao<T extends Dto> {
     return resultaat;
   }
 
-  public Object namedSingleResult (String querynaam) {
-    return namedSingleResult (querynaam, new HashMap<String, Object>());
+  public Object namedSingleResult(String querynaam) {
+    return namedSingleResult(querynaam, new HashMap<String, Object>());
   }
 
-  public Object namedSingleResult (String querynaam,
-                                   Map<String, Object> params) {
+  public Object namedSingleResult(String querynaam,
+                                  Map<String, Object> params) {
     Query query = getEntityManager().createNamedQuery(querynaam);
 
     for (Map.Entry<String, Object> entry : params.entrySet()) {
