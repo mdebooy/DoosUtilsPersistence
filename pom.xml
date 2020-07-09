@@ -9,8 +9,8 @@
   <artifactId>doosutils-persistence</artifactId>
   <packaging>jar</packaging>
   <version>2.3.0-SNAPSHOT</version>
-  <name>Utility classes voor DOOS Applicaties (Persistence)</name>
-  <description>Utility classes voor Persistence.</description>
+  <name>Utility classes voor dOOS Applicaties (Persistence)</name>
+  <description>Persistence utility classes voor dOOS Applicaties.</description>
   <inceptionYear>2009</inceptionYear>
   <scm>
     <developerConnection>scm:git:ssh://ptah.debooy.eu/srv/git/debooy/DoosUtilsPersistence.git</developerConnection>
@@ -23,7 +23,7 @@
       <name>Marco de Booij</name>
       <id>booymar</id>
       <email>marco.developer@debooy.eu</email>
-      <organization>DOOS</organization>
+      <organization>dOOS</organization>
       <roles>
         <role>Project Manager</role>
         <role>Java Developer</role>
