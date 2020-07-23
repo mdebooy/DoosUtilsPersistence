@@ -17,7 +17,6 @@
 package eu.debooy.doosutils.domain;
 
 import eu.debooy.doosutils.DoosUtils;
-
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,13 +25,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.slf4j.Logger;
 
 
 /**
  * Data Transfer Object pattern.
- * 
+ *
  * @author Marco de Booij
  */
 public abstract class Dto implements Serializable {
@@ -42,14 +40,12 @@ public abstract class Dto implements Serializable {
       new HashSet<String>() {
         private static final  long  serialVersionUID      = 1L;
               {add("Class"); add("Logger");}};
+  private static final  String      GET                   = "get";
   private static final  String[]    GET_METHODS_PREFIXES  = {"get", "is"};
   private static final  String      LIKE                  = "%";
+  private static final  String      IS                    = "is";
+  private static final  String      NULL                  = "<null>";
 
-  /**
-   * Zoek alle 'getters'.
-   * 
-   * @return
-   */
   public Method[] findGetters() {
     List<Method>  getters   = new ArrayList<Method>();
     Method[]      methodes  = this.getClass().getMethods();
@@ -69,34 +65,20 @@ public abstract class Dto implements Serializable {
     return getters.toArray(methodes);
   }
 
-  /**
-   * Geef de LOGGER van de extended class.
-   * 
-   * @return Logger
-   */
   public Logger getLogger() {
     return null;
   }
 
-  /**
-   * Test om te zien of de Collection van DTOs gewijzigd is.
-   * 
-   * @param collection
-   * @param oldCollection
-   * @return
-   */
   private boolean isCollectionModified(Collection<?> collection,
                                        Collection<?> oldCollection) {
-    if (null != collection && null == oldCollection) {
-      return true;
+    if (null == collection) {
+      if (null == oldCollection ) {
+        return false;
+      } else {
+        return true;
+      }
     }
-    if (null == collection && null != oldCollection) {
-      return true;
-    }
-    if (null == collection && null == oldCollection) {
-      return false;
-    } 
-    if (collection.size() != oldCollection.size()) {
+    if (collection.equals(oldCollection)) {
       return true;
     }
 
@@ -105,27 +87,19 @@ public abstract class Dto implements Serializable {
     Object[]  oldObjects  = new Object[oldCollection.size()];
     oldObjects  = oldCollection.toArray(oldObjects);
     boolean   modified    = false;
-    for (int i = 0; i < objects.length; i++) {
+    int       i           = 0;
+    while (i < objects.length && !modified) {
       if (objects[i] instanceof Dto && oldObjects[i] instanceof Dto) {
         modified |= ((Dto) objects[i]).isModified((Dto) oldObjects[i], false);
       } else {
         modified |= !objects[i].equals(oldObjects[i]);
       }
-      if (modified) {
-        break;
-      }
+      i++;
     }
 
     return modified;
   }
 
-  /**
-   * Test om te zien of de DTO gewijzigd is.
-   * 
-   * @param oldDto
-   * @param checkCollections
-   * @return
-   */
   public boolean isModified(Dto oldDto, boolean checkCollections) {
     if (null == oldDto) {
       return true;
@@ -148,7 +122,7 @@ public abstract class Dto implements Serializable {
             if (checkCollections) {
               modified |= isCollectionModified((Collection<?>) value1,
                                                (Collection<?>) value2);
-  
+
             }
           } else if (value1 instanceof Dto && value2 instanceof Dto) {
             modified |= ((Dto) value1).isModified((Dto) value2, false);
@@ -167,28 +141,17 @@ public abstract class Dto implements Serializable {
     }
   }
 
-  /**
-   * Maak een DoosFilter die gebaseerd is op de DTO.
-   * 
-   * @return
-   */
   public <T> DoosFilter<T> makeFilter() {
     return makeFilter(false);
   }
 
-  /**
-   * Maak een DoosFilter die gebaseerd is op de DTO.
-   * 
-   * @param like
-   * @return
-   */
   public <T> DoosFilter<T> makeFilter(boolean like) {
     DoosFilter<T> filter    = new DoosFilter<T>();
     String        attribute = null;
     Object        waarde    = null;
 
     for (Method method : findGetters()) {
-      if (method.getName().startsWith("get")) {
+      if (method.getName().startsWith(GET)) {
         try {
           attribute = method.getName().substring(3);
           if (!EXCLUDE_METHODS.contains(attribute)) {
@@ -199,7 +162,7 @@ public abstract class Dto implements Serializable {
                 && DoosUtils.isNotBlankOrNull(waarde)) {
               if (like
                   && waarde instanceof String
-                  && ((String) waarde).indexOf(LIKE) < 0) {
+                  && !((String) waarde).contains(LIKE)) {
                 waarde  = LIKE + waarde + LIKE;
               }
               filter.addFilter(attribute, waarde);
@@ -219,9 +182,7 @@ public abstract class Dto implements Serializable {
     return filter;
   }
 
-  /**
-   * Maak een String van alle attributen die via een getter te benaderen zijn.
-   */
+  @Override
   public String toString() {
     StringBuilder sb        = new StringBuilder();
     String        attribute = null;
@@ -230,9 +191,9 @@ public abstract class Dto implements Serializable {
     sb.append(this.getClass().getSimpleName()).append(" (");
     for (Method method : findGetters()) {
       try {
-        if (method.getName().startsWith("get")) {
+        if (method.getName().startsWith(GET)) {
           attribute = method.getName().substring(3);
-        } else if (method.getName().startsWith("is")) {
+        } else if (method.getName().startsWith(IS)) {
           attribute = method.getName().substring(2);
         } else {
           continue;
@@ -250,7 +211,7 @@ public abstract class Dto implements Serializable {
             sb.append("[").append(waarde.toString()).append("]");
           }
         } else {
-          sb.append("<null>");
+          sb.append(NULL);
         }
       } catch (IllegalAccessException | IllegalArgumentException
                | InvocationTargetException e) {
