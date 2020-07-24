@@ -46,6 +46,16 @@ public abstract class Dto implements Serializable {
   private static final  String      IS                    = "is";
   private static final  String      NULL                  = "<null>";
 
+  private boolean checkNullDiff(Object object1, Object object2,
+                                boolean modified) {
+    if ((null != object1 && null == object2)
+        || (null == object1 && null != object2)) {
+      return true;
+    }
+
+    return modified;
+  }
+
   public Method[] findGetters() {
     List<Method>  getters   = new ArrayList<Method>();
     Method[]      methodes  = this.getClass().getMethods();
@@ -72,11 +82,7 @@ public abstract class Dto implements Serializable {
   private boolean isCollectionModified(Collection<?> collection,
                                        Collection<?> oldCollection) {
     if (null == collection) {
-      if (null == oldCollection ) {
-        return false;
-      } else {
-        return true;
-      }
+      return (null != oldCollection );
     }
     if (collection.equals(oldCollection)) {
       return true;
@@ -100,34 +106,38 @@ public abstract class Dto implements Serializable {
     return modified;
   }
 
+  private boolean isCollections(Object object1, Object object2) {
+    return object1 instanceof Collection && object2 instanceof Collection;
+  }
+
+  private boolean isDtos(Object object1, Object object2) {
+    return object1 instanceof Dto && object2 instanceof Dto;
+  }
+
   public boolean isModified(Dto oldDto, boolean checkCollections) {
     if (null == oldDto) {
       return true;
     }
 
     boolean   modified  = false;
-    Object    value1;
-    Object    value2;
+    Object    object1;
+    Object    object2;
     try {
       for (Method method : findGetters()) {
-        value1  = method.invoke(this);
-        value2  = method.invoke(oldDto);
-        if ((null != value1 && null == value2)
-            || (null == value1 && null != value2)) {
-          modified = true;
-        }
-        if (null != value1 && null != value2) {
-          if (value1 instanceof Collection
-                  && value2 instanceof Collection) {
+        object1   = method.invoke(this);
+        object2   = method.invoke(oldDto);
+        modified  = checkNullDiff(object1, object2, modified);
+        if (null != object1 && null != object2) {
+          if (isCollections(object1, object2)) {
             if (checkCollections) {
-              modified |= isCollectionModified((Collection<?>) value1,
-                                               (Collection<?>) value2);
+              modified |= isCollectionModified((Collection<?>) object1,
+                                               (Collection<?>) object2);
 
             }
-          } else if (value1 instanceof Dto && value2 instanceof Dto) {
-            modified |= ((Dto) value1).isModified((Dto) value2, false);
+          } else if (isDtos(object1, object2)) {
+            modified |= ((Dto) object1).isModified((Dto) object2, false);
           } else {
-            modified |= !value1.equals(value2);
+            modified |= !object1.equals(object2);
           }
         }
         if (modified) {
