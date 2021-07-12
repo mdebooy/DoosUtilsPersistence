@@ -49,4 +49,5 @@ public final class PersistenceConstants {
   public static final String  UPDATED     = "info.update";
   public static final String  WRONGACTION = "errors.aktie.wrong";
   public static final String  WRONGDATE   = "errors.date";
+  public static final String  WRONGVALUE  = "errors.value";
 }
