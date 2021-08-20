@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 Marco de Booij
+ * Copyright (c) 2012 Marco de Booij
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -22,25 +22,21 @@ import eu.debooy.doosutils.domain.Dto;
 import eu.debooy.doosutils.errorhandling.exception.DuplicateObjectException;
 import eu.debooy.doosutils.errorhandling.exception.ObjectNotFoundException;
 import eu.debooy.doosutils.errorhandling.exception.base.DoosLayer;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-
 import org.apache.openjpa.persistence.EntityExistsException;
 
 
 /**
  * Data Access Object pattern.
- * 
+ *
  * @author Marco de Booij
  */
 public abstract class Dao<T extends Dto> {
@@ -48,7 +44,7 @@ public abstract class Dao<T extends Dto> {
 
   private Class<T>  dto;
 
-  public Dao(Class<T> dto) {
+  protected Dao(Class<T> dto) {
     this.dto  = dto;
   }
 
@@ -136,52 +132,48 @@ public abstract class Dao<T extends Dto> {
   }
 
   public Long namedNonSelect(String querynaam) {
-    return namedNonSelect(querynaam, new HashMap<String, Object>());
+    return namedNonSelect(querynaam, new HashMap<>());
   }
 
   public Long namedNonSelect(String querynaam,
                                    Map<String, Object> params) {
     Query query = getEntityManager().createNamedQuery(querynaam);
 
-    for (Map.Entry<String, Object> entry : params.entrySet()) {
-      query.setParameter((String)entry.getKey(), entry.getValue());
-    }
+    params.entrySet().forEach(entry ->
+        query.setParameter((String)entry.getKey(), entry.getValue()));
 
     return Long.valueOf(query.executeUpdate());
   }
 
   public List<T> namedQuery(String querynaam) {
-    return namedQuery(querynaam, new HashMap<String, Object>());
+    return namedQuery(querynaam, new HashMap<>());
   }
 
-  @SuppressWarnings("unchecked")
   public List<T> namedQuery(String querynaam, Map<String, Object> params) {
     Query query = getEntityManager().createNamedQuery(querynaam);
 
-    for (Entry<String, Object> entry : params.entrySet()) {
-      query.setParameter(entry.getKey(), entry.getValue());
-    }
+    params.entrySet().forEach(entry -> query.setParameter(entry.getKey(),
+                                                          entry.getValue()));
 
     List<T> resultaat = query.getResultList();
 
     if (null == resultaat) {
-      resultaat = new ArrayList<T>();
+      resultaat = new ArrayList<>();
     }
-    
+
     return resultaat;
   }
 
   public Object namedSingleResult(String querynaam) {
-    return namedSingleResult(querynaam, new HashMap<String, Object>());
+    return namedSingleResult(querynaam, new HashMap<>());
   }
 
   public Object namedSingleResult(String querynaam,
                                   Map<String, Object> params) {
     Query query = getEntityManager().createNamedQuery(querynaam);
 
-    for (Map.Entry<String, Object> entry : params.entrySet()) {
-      query.setParameter((String)entry.getKey(), entry.getValue());
-    }
+    params.entrySet().forEach(entry ->
+        query.setParameter((String)entry.getKey(), entry.getValue()));
 
     return query.getSingleResult();
   }
@@ -190,7 +182,7 @@ public abstract class Dao<T extends Dto> {
     List<T> resultaat = getEntityManager().createQuery(query).getResultList();
 
     if (null == resultaat) {
-      resultaat = new ArrayList<T>();
+      resultaat = new ArrayList<>();
     }
 
     return resultaat;
