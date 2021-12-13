@@ -19,12 +19,10 @@ package eu.debooy.doosutils.domain;
 import eu.debooy.doosutils.Filter;
 import eu.debooy.doosutils.errorhandling.exception.IllegalArgumentException;
 import eu.debooy.doosutils.errorhandling.exception.base.DoosLayer;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -33,38 +31,20 @@ import javax.persistence.criteria.Root;
 
 /**
  * @author Marco de Booij
+ *
  * @param <T>
  */
 public class DoosFilter<T> implements CriteriaCommand<T> {
-  private List<Filter>  filters = new ArrayList<Filter>();
+  private List<Filter>  filters = new ArrayList<>();
 
-  /**
-   * Voeg een conditie toe aan de filter.
-   * 
-   * @param element
-   * @param waarde
-   */
   public void addFilter(String element, Object waarde) {
     filters.add(new Filter(element, waarde));
   }
 
-  /**
-   * Geef alle filter elementen.
-   * 
-   * @return
-   */
   public final List<Filter> getAll() {
     return filters;
   }
 
-  /**
-   * Maak de criteria.
-   * 
-   * @param builder
-   * @param fromStringBuffer
-   * @param element
-   * @param waarde
-   */
   private Predicate buildCriteria(CriteriaBuilder builder, Root<T> from,
                                   String element, Object waarde) {
     Predicate predicate	= null;
@@ -82,9 +62,9 @@ public class DoosFilter<T> implements CriteriaCommand<T> {
                                           ((String) waarde).toUpperCase());
         }
       } else if (waarde instanceof Date) {
-        predicate = builder.equal(from.<Date>get(element), ((Date) waarde));
+        predicate = builder.equal(from.<Date>get(element), (waarde));
       } else if (waarde instanceof Number) {
-        predicate = builder.equal(from.<Number>get(element), ((Number) waarde));
+        predicate = builder.equal(from.<Number>get(element), (waarde));
       } else if (waarde instanceof Boolean) {
         // Booleans overslaan
         predicate = null;
@@ -97,13 +77,6 @@ public class DoosFilter<T> implements CriteriaCommand<T> {
     return predicate;
   }
 
-  /**
-   * Maak de 'where clause'.
-   * 
-   * @param builder
-   * @param from
-   * @param query
-   */
   @Override
   public void execute(CriteriaBuilder builder, Root<T> from,
                       CriteriaQuery<T> query) {
@@ -111,11 +84,11 @@ public class DoosFilter<T> implements CriteriaCommand<T> {
       return;
     }
 
-    int j = 0;
-    Predicate[] where = new Predicate[filters.size()];
-    for (int i = 0; i < filters.size(); i++) {
-      Filter    filter    = filters.get(i);
-      Predicate predicaat = buildCriteria(builder, from, filter.getElement(),
+    var j     = 0;
+    var where = new Predicate[filters.size()];
+    for (var i = 0; i < filters.size(); i++) {
+      var filter    = filters.get(i);
+      var predicaat = buildCriteria(builder, from, filter.getElement(),
                                           filter.getWaarde());
       if (null != predicaat) {
         where[j]  = predicaat;
@@ -126,15 +99,12 @@ public class DoosFilter<T> implements CriteriaCommand<T> {
     query.where(Arrays.copyOf(where, j));
   }
 
-  /**
-   * Maak een String van alle elementen van de filter.
-   */
   @Override
   public String toString() {
-    StringBuilder sb  = new StringBuilder();
+    var sb  = new StringBuilder();
 
-    for (Filter filter : filters) {
-      Object  waarde  = filter.getWaarde();
+    filters.forEach(filter -> {
+      var waarde  = filter.getWaarde();
       sb.append(", ").append(filter.getElement());
       if (waarde instanceof String) {
         if (((String) waarde).contains("%")) {
@@ -149,9 +119,11 @@ public class DoosFilter<T> implements CriteriaCommand<T> {
         sb.append(" = ").append(waarde);
       } else {
         sb.append(" illegal argument ");
-        sb.append(waarde.getClass().getName());
+        if (null != waarde) {
+          sb.append(waarde.getClass().getName());
+        }
       }
-    }
+    });
 
     return sb.toString().replaceFirst(", ", "");
   }

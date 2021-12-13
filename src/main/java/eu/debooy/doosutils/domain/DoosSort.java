@@ -17,10 +17,8 @@
 package eu.debooy.doosutils.domain;
 
 import eu.debooy.doosutils.Sort;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Order;
@@ -29,9 +27,11 @@ import javax.persistence.criteria.Root;
 
 /**
  * @author Marco de Booij
+ *
+ * @param <T>
  */
 public class DoosSort<T> implements CriteriaCommand<T> {
-  private List<Sort>  sorts = new ArrayList<Sort>();
+  private List<Sort>  sorts = new ArrayList<>();
 
   public void addSort(String property, String order) {
     sorts.add(new Sort(property, order));
@@ -44,8 +44,8 @@ public class DoosSort<T> implements CriteriaCommand<T> {
       return;
     }
 
-    Order[] orderBy = new Order[sorts.size()];
-    for (int i = 0; i < sorts.size(); i++) {
+    var orderBy = new Order[sorts.size()];
+    for (var i = 0; i < sorts.size(); i++) {
       Sort  sort  = sorts.get(i);
       if (sort.getOrder().equals(Sort.ASC)) {
         orderBy[i]  = builder.asc(from.get(sort.getProperty()));
@@ -57,26 +57,17 @@ public class DoosSort<T> implements CriteriaCommand<T> {
     query.orderBy(orderBy);
   }
 
-  /**
-   * Geef alle filter elementen.
-   * 
-   * @return
-   */
   public final List<Sort> getAll() {
     return sorts;
   }
 
-  /**
-   * Maak een String van alle elementen van de filter.
-   */
   @Override
   public String toString() {
     StringBuilder sb  = new StringBuilder();
 
-    for (Sort sort : sorts) {
+    sorts.forEach(sort ->
       sb.append(", ").append(sort.getProperty())
-        .append(" ").append(sort.getOrder());
-    }
+        .append(" ").append(sort.getOrder()));
 
     return sb.toString().replaceFirst(", ", "");
   }

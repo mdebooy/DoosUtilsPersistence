@@ -17,7 +17,6 @@
 package eu.debooy.doosutils;
 
 import java.io.Serializable;
-
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -51,36 +50,27 @@ public class Filter implements Serializable {
                                  .toComparison();
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
   public final boolean equals(Object object) {
     if (!(object instanceof Filter)) {
       return false;
     }
 
-    Filter  filter  = (Filter) object;
+    var filter  = (Filter) object;
     return new EqualsBuilder().append(element, filter.element)
                               .append(waarde, filter.waarde).isEquals();
 
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public final int hashCode() {
     return new HashCodeBuilder().append(element).append(waarde)
                                 .toHashCode();
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
   @Override
   public final String toString() {
-    StringBuilder result  = new StringBuilder();
+    var result  = new StringBuilder();
 
     result.append("element: ").append(element)
           .append(" - waarde: ").append(waarde);

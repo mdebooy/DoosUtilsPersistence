@@ -16,14 +16,13 @@
  */
 package eu.debooy.doosutils.domain;
 
+import eu.debooy.doosutils.DoosConstants;
 import eu.debooy.doosutils.DoosUtils;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 
@@ -36,15 +35,13 @@ import org.slf4j.Logger;
 public abstract class Dto implements Serializable {
   private static final  long  serialVersionUID  = 1L;
 
-  private static final  Set<String> EXCLUDE_METHODS       =
+  private static final  Set<String> EXCLUDE_METHODS   =
       new HashSet<String>() {
-        private static final  long  serialVersionUID      = 1L;
+        private static final  long  serialVersionUID  = 1L;
               {add("Class"); add("Logger");}};
-  private static final  String      GET                   = "get";
-  private static final  String[]    GET_METHODS_PREFIXES  = {"get", "is"};
-  private static final  String      LIKE                  = "%";
-  private static final  String      IS                    = "is";
-  private static final  String      NULL                  = "<null>";
+  private static final  String      GET               = "get";
+  private static final  String      LIKE              = "%";
+  private static final  String      IS                = "is";
 
   private boolean checkNullDiff(Object object1, Object object2,
                                 boolean modified) {
@@ -54,25 +51,6 @@ public abstract class Dto implements Serializable {
     }
 
     return modified;
-  }
-
-  public Method[] findGetters() {
-    List<Method>  getters   = new ArrayList<Method>();
-    Method[]      methodes  = this.getClass().getMethods();
-    for (Method method : methodes) {
-      for (String prefix : GET_METHODS_PREFIXES) {
-        if (method.getName().startsWith(prefix)) {
-          if (method.getParameterTypes() == null
-              || method.getParameterTypes().length == 0) {
-            getters.add(method);
-          }
-          break;
-        }
-      }
-    }
-    methodes = new Method[getters.size()];
-
-    return getters.toArray(methodes);
   }
 
   public Logger getLogger() {
@@ -88,12 +66,12 @@ public abstract class Dto implements Serializable {
       return true;
     }
 
-    Object[]  objects     = new Object[collection.size()];
-    objects     = collection.toArray(objects);
-    Object[]  oldObjects  = new Object[oldCollection.size()];
-    oldObjects  = oldCollection.toArray(oldObjects);
-    boolean   modified    = false;
-    int       i           = 0;
+    var objects     = new Object[collection.size()];
+    objects         = collection.toArray(objects);
+    var oldObjects  = new Object[oldCollection.size()];
+    oldObjects      = oldCollection.toArray(oldObjects);
+    var modified    = false;
+    var i           = 0;
     while (i < objects.length && !modified) {
       if (objects[i] instanceof Dto && oldObjects[i] instanceof Dto) {
         modified |= ((Dto) objects[i]).isModified((Dto) oldObjects[i], false);
@@ -119,11 +97,11 @@ public abstract class Dto implements Serializable {
       return true;
     }
 
-    boolean   modified  = false;
-    Object    object1;
-    Object    object2;
+    var     modified  = false;
+    Object  object1;
+    Object  object2;
     try {
-      for (Method method : findGetters()) {
+      for (var method : DoosUtils.findGetters(this.getClass().getMethods())) {
         object1   = method.invoke(this);
         object2   = method.invoke(oldDto);
         modified  = checkNullDiff(object1, object2, modified);
@@ -156,11 +134,11 @@ public abstract class Dto implements Serializable {
   }
 
   public <T> DoosFilter<T> makeFilter(boolean like) {
-    DoosFilter<T> filter    = new DoosFilter<T>();
-    String        attribute = null;
-    Object        waarde    = null;
+    var     filter    = new DoosFilter<T>();
+    String  attribute;
+    Object  waarde;
 
-    for (Method method : findGetters()) {
+    for (var method : DoosUtils.findGetters(this.getClass().getMethods())) {
       if (method.getName().startsWith(GET)) {
         try {
           attribute = method.getName().substring(3);
@@ -194,12 +172,12 @@ public abstract class Dto implements Serializable {
 
   @Override
   public String toString() {
-    StringBuilder sb        = new StringBuilder();
-    String        attribute = null;
-    Object        waarde    = null;
+    var     sb        = new StringBuilder();
+    String  attribute = null;
+    Object  waarde    = null;
 
     sb.append(this.getClass().getSimpleName()).append(" (");
-    for (Method method : findGetters()) {
+    for (var method : DoosUtils.findGetters(this.getClass().getMethods())) {
       try {
         if (method.getName().startsWith(GET)) {
           attribute = method.getName().substring(3);
@@ -221,11 +199,11 @@ public abstract class Dto implements Serializable {
             sb.append("[").append(waarde.toString()).append("]");
           }
         } else {
-          sb.append(NULL);
+          sb.append(DoosConstants.NULL);
         }
       } catch (IllegalAccessException | IllegalArgumentException
                | InvocationTargetException e) {
-        Logger  logger  = getLogger();
+        var logger  = getLogger();
         if (null != logger) {
           logger.error("toString" + e.getClass().getName() + ": "
                   + e.getMessage());

@@ -18,17 +18,11 @@ package eu.debooy.doosutils.percistence;
 
 import eu.debooy.doosutils.errorhandling.exception.IllegalArgumentException;
 import eu.debooy.doosutils.errorhandling.exception.base.DoosLayer;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,10 +32,8 @@ public final class EntityManagerUtil {
   private EntityManagerUtil() {}
 
   private static        EntityManagerFactory        emf;
-  private static final  Logger                      LOGGER        =
-      LoggerFactory.getLogger(EntityManagerUtil.class);
   public  static final  ThreadLocal<EntityManager>  ENTITYMANAGER =
-      new ThreadLocal<EntityManager>();
+      new ThreadLocal<>();
 
   public static EntityManagerFactory getEntityManagerFactory(
       String persistenceUnitName) {
@@ -54,14 +46,12 @@ public final class EntityManagerUtil {
   public static EntityManagerFactory getEntityManagerFactory(
       String persistenceUnitName, String configuratie) {
     if (null == emf) {
-      InputStream mappings  = null;
-      mappings =  EntityManagerFactory.class.getClassLoader()
-                                      .getResourceAsStream(configuratie);
-      Properties  properties  = new Properties();
+      var mappings  = EntityManagerFactory.class.getClassLoader()
+                                          .getResourceAsStream(configuratie);
+      var properties  = new Properties();
       try {
         properties.load(mappings);
       } catch (IOException e) {
-        LOGGER.error("getEntityManagerFactory: " + e.getMessage());
         throw new IllegalArgumentException(DoosLayer.PERSISTENCE,
                                            "getEntityManagerFactory: "
                                            + e.getMessage());
@@ -74,7 +64,7 @@ public final class EntityManagerUtil {
   }
 
   public static EntityManager getEntityManager(String persistenceUnitName) {
-    EntityManager em  = (EntityManager) ENTITYMANAGER.get();
+    var em  = ENTITYMANAGER.get();
 
     if (null == em) {
       getEntityManagerFactory(persistenceUnitName);
@@ -85,8 +75,8 @@ public final class EntityManagerUtil {
   }
 
   public static void closeEntityManager() {
-    EntityManager em  = (EntityManager) ENTITYMANAGER.get();
-    ENTITYMANAGER.set(null);
+    var em  = ENTITYMANAGER.get();
+    ENTITYMANAGER.remove();
     if (null != em) {
       em.close();
     }

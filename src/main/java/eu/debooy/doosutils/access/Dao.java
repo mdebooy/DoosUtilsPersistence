@@ -27,10 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import org.apache.openjpa.persistence.EntityExistsException;
 
 
@@ -38,6 +35,8 @@ import org.apache.openjpa.persistence.EntityExistsException;
  * Data Access Object pattern.
  *
  * @author Marco de Booij
+ *
+ * @param <T>
  */
 public abstract class Dao<T extends Dto> {
   protected abstract  EntityManager getEntityManager();
@@ -62,17 +61,17 @@ public abstract class Dao<T extends Dto> {
   }
 
   public void delete(T dto) {
-    T merged  = (T) getEntityManager().merge(dto);
+    T merged  = getEntityManager().merge(dto);
     getEntityManager().remove(merged);
     getEntityManager().flush();
 
   }
 
   public List<T> getAll() {
-    CriteriaBuilder   builder   = getEntityManager().getCriteriaBuilder();
-    CriteriaQuery<T>  query     = builder.createQuery(dto);
-    Root<T>           from      = query.from(dto);
-    CriteriaQuery<T>  all       = query.select(from);
+    var builder = getEntityManager().getCriteriaBuilder();
+    var query   = builder.createQuery(dto);
+    var from    = query.from(dto);
+    var all     = query.select(from);
 
     return query(all);
   }
@@ -82,9 +81,9 @@ public abstract class Dao<T extends Dto> {
   }
 
   public List<T> getAll(DoosFilter<T> filter, DoosSort<T> sort) {
-    CriteriaBuilder   builder   = getEntityManager().getCriteriaBuilder();
-    CriteriaQuery<T>  query     = builder.createQuery(dto);
-    Root<T>           from      = query.from(dto);
+    var builder = getEntityManager().getCriteriaBuilder();
+    var query   = builder.createQuery(dto);
+    var from    = query.from(dto);
     if (null != filter) {
       filter.execute(builder, from, query);
     }
@@ -100,7 +99,7 @@ public abstract class Dao<T extends Dto> {
   }
 
   public T getByPrimaryKey(Object sleutel) {
-    T entry = getEntityManager().find(dto, sleutel);
+    var entry = getEntityManager().find(dto, sleutel);
 
     if (null == entry) {
       throw new ObjectNotFoundException(DoosLayer.PERSISTENCE,
@@ -112,11 +111,11 @@ public abstract class Dao<T extends Dto> {
   }
 
   public T getUniqueResult(DoosFilter<T> filter) {
-    CriteriaBuilder   builder   = getEntityManager().getCriteriaBuilder();
-    CriteriaQuery<T>  query     = builder.createQuery(dto);
-    Root<T>           from      = query.from(dto);
+    var builder   = getEntityManager().getCriteriaBuilder();
+    var query     = builder.createQuery(dto);
+    var from      = query.from(dto);
     filter.execute(builder, from, query);
-    List<T>           resultaat = query(query);
+    var resultaat = query(query);
     if (resultaat.isEmpty()) {
       throw new ObjectNotFoundException(DoosLayer.PERSISTENCE,
                                         "getUniqueResult(" + filter.toString()
@@ -137,10 +136,10 @@ public abstract class Dao<T extends Dto> {
 
   public Long namedNonSelect(String querynaam,
                                    Map<String, Object> params) {
-    Query query = getEntityManager().createNamedQuery(querynaam);
+    var query = getEntityManager().createNamedQuery(querynaam);
 
     params.entrySet().forEach(entry ->
-        query.setParameter((String)entry.getKey(), entry.getValue()));
+        query.setParameter(entry.getKey(), entry.getValue()));
 
     return Long.valueOf(query.executeUpdate());
   }
@@ -150,12 +149,12 @@ public abstract class Dao<T extends Dto> {
   }
 
   public List<T> namedQuery(String querynaam, Map<String, Object> params) {
-    Query query = getEntityManager().createNamedQuery(querynaam);
+    var query = getEntityManager().createNamedQuery(querynaam);
 
     params.entrySet().forEach(entry -> query.setParameter(entry.getKey(),
                                                           entry.getValue()));
 
-    List<T> resultaat = query.getResultList();
+    var resultaat = query.getResultList();
 
     if (null == resultaat) {
       resultaat = new ArrayList<>();
@@ -170,16 +169,16 @@ public abstract class Dao<T extends Dto> {
 
   public Object namedSingleResult(String querynaam,
                                   Map<String, Object> params) {
-    Query query = getEntityManager().createNamedQuery(querynaam);
+    var query = getEntityManager().createNamedQuery(querynaam);
 
     params.entrySet().forEach(entry ->
-        query.setParameter((String)entry.getKey(), entry.getValue()));
+        query.setParameter(entry.getKey(), entry.getValue()));
 
     return query.getSingleResult();
   }
 
   public List<T> query(CriteriaQuery<T> query) {
-    List<T> resultaat = getEntityManager().createQuery(query).getResultList();
+    var resultaat = getEntityManager().createQuery(query).getResultList();
 
     if (null == resultaat) {
       resultaat = new ArrayList<>();
@@ -189,7 +188,7 @@ public abstract class Dao<T extends Dto> {
   }
 
   public T update(T dto) {
-    T updated = (T) getEntityManager().merge(dto);
+    var updated = getEntityManager().merge(dto);
     getEntityManager().persist(updated);
     getEntityManager().flush();
     getEntityManager().refresh(updated);

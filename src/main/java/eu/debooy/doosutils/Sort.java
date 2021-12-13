@@ -17,7 +17,6 @@
 package eu.debooy.doosutils;
 
 import java.io.Serializable;
-
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -48,11 +47,13 @@ public class Sort implements Serializable, Comparable<Sort> {
     return order;
   }
 
+  @Override
   public final int compareTo(Sort andere) {
     return new CompareToBuilder().append(property, andere.property)
                                  .append(order, andere.order).toComparison();
   }
 
+  @Override
   public final boolean equals(Object object) {
     if (!(object instanceof Sort)) {
       return false;
@@ -66,12 +67,14 @@ public class Sort implements Serializable, Comparable<Sort> {
                               .append(order, andere.order).isEquals();
   }
 
+  @Override
   public final int hashCode() {
     return new HashCodeBuilder().append(property).append(order).toHashCode();
   }
 
+  @Override
   public final String toString() {
-    StringBuilder result  = new StringBuilder();
+    var result  = new StringBuilder();
 
     result.append("property: ").append(property)
           .append(" - order: ").append(order);

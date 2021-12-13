@@ -16,12 +16,9 @@
  */
 package eu.debooy.doosutils.form;
 
+import eu.debooy.doosutils.DoosUtils;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 
 
@@ -33,60 +30,21 @@ public class Formulier implements Serializable {
 
   protected boolean gewijzigd = false;
 
-  private static final  String[]  GET_METHODS_PREFIXES  = {"get", "is"};
-
-  /**
-   * Zoek alle 'getters'.
-   * 
-   * @return
-   */
-  public Method[] findGetters() {
-    List<Method>  getters   = new ArrayList<Method>();
-    Method[]      methodes  = this.getClass().getMethods();
-    for (Method method : methodes) {
-      for (String prefix : GET_METHODS_PREFIXES) {
-        if (method.getName().startsWith(prefix)) {
-          if (method.getParameterTypes() == null
-              || method.getParameterTypes().length == 0) {
-            getters.add(method);
-          }
-          break;
-        }
-      }
-    }
-    methodes = new Method[getters.size()];
-
-    return getters.toArray(methodes);
-  }
-
-  /**
-   * Geef de LOGGER van de extended class.
-   * 
-   * @return Logger
-   */
   public Logger getLogger() {
     return null;
   }
 
-  /**
-   * Is er iets gewijzigd?
-   * 
-   * @return
-   */
   public boolean isGewijzigd() {
     return gewijzigd;
   }
 
-  /**
-   * Maak een String van alle attributen die via een getter te benaderen zijn.
-   */
   public String toString() {
-    StringBuilder sb        = new StringBuilder();
-    String        attribute = null;
-    Object        waarde    = null;
+    var     sb        = new StringBuilder();
+    String  attribute = null;
+    Object  waarde    = null;
 
     sb.append(this.getClass().getSimpleName()).append(" (");
-    for (Method method : findGetters()) {
+    for (var method : DoosUtils.findGetters(this.getClass().getMethods())) {
       try {
         if (method.getName().startsWith("get")) {
           attribute = method.getName().substring(3);

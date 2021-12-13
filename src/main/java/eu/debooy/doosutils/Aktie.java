@@ -18,94 +18,56 @@ package eu.debooy.doosutils;
 
 import java.io.Serializable;
 
+
 /**
  * @author Marco de Booij
  */
-public class Aktie implements Cloneable, Serializable {
+public class Aktie implements Serializable {
   private static final long serialVersionUID = 1L;
 
-  private char  aktie = PersistenceConstants.RETRIEVE;
+  private char  actie = PersistenceConstants.RETRIEVE;
 
   public Aktie() {}
-  
+
   public Aktie(char aktie) {
-    this.aktie  = aktie;
+    actie = aktie;
   }
 
-  /**
-   * Clone de Aktie
-   * 
-   * @return Aktie
-   * @throws CloneNotSupportedException
-   */
-  public Aktie clone() throws CloneNotSupportedException {
-    Aktie clone = (Aktie) super.clone();
-
-    return clone;
+  public Aktie(Aktie aktie) {
+    actie = aktie.getAktie();
   }
 
-  /**
-   * @return de aktie
-   */
   public char getAktie() {
-    return aktie;
+    return actie;
   }
 
-  /**
-   * In 'Bekijk' mode?
-   * 
-   * @return boolean
-   */
   public boolean isBekijk() {
-    return (aktie == PersistenceConstants.RETRIEVE);
+    return (actie == PersistenceConstants.RETRIEVE);
   }
 
-  /**
-   * In 'Nieuw' mode?
-   * 
-   * @return boolean
-   */
   public boolean isNieuw() {
-    return (aktie == PersistenceConstants.CREATE);
+    return (actie == PersistenceConstants.CREATE);
   }
 
-  /**
-   * In read-only mode?
-   * 
-   * @return boolean
-   */
   public boolean isReadonly() {
-    return (aktie == PersistenceConstants.DELETE)
-        || (aktie == PersistenceConstants.RETRIEVE);
+    return (actie == PersistenceConstants.DELETE)
+        || (actie == PersistenceConstants.RETRIEVE);
   }
 
-  /**
-   * In 'Verwijder' mode?
-   * 
-   * @return boolean
-   */
   public boolean isVerwijder() {
-    return (aktie == PersistenceConstants.DELETE);
+    return (actie == PersistenceConstants.DELETE);
   }
 
-  /**
-   * In 'Wijzig' mode?
-   * 
-   * @return boolean
-   */
   public boolean isWijzig() {
-    return (aktie == PersistenceConstants.UPDATE);
+    return (actie == PersistenceConstants.UPDATE);
   }
 
-  /**
-   * @param aktie de waarde van aktie
-   */
   public void setAktie(char aktie) {
-    this.aktie = aktie;
+    this.actie = aktie;
   }
 
   @Override
   public String toString() {
-    return "Aktie: " + aktie;
+    return "Aktie: " + actie;
   }
 }

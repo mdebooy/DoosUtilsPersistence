@@ -23,6 +23,8 @@ import javax.persistence.criteria.Root;
 
 /**
  * @author Marco de Booij
+ * 
+ * @param <T>
  */
 public interface CriteriaCommand<T> {
   void execute(CriteriaBuilder builder, Root<T> from, CriteriaQuery<T> query);
