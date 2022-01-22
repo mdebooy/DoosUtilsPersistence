@@ -35,6 +35,18 @@ public final class EntityManagerUtil {
   public  static final  ThreadLocal<EntityManager>  ENTITYMANAGER =
       new ThreadLocal<>();
 
+  public static void closeEntityManager() {
+    var em  = ENTITYMANAGER.get();
+    ENTITYMANAGER.remove();
+    if (null != em) {
+      em.close();
+    }
+    if (null == emf) {
+      return;
+    }
+    emf.close();
+  }
+
   public static EntityManagerFactory getEntityManagerFactory(
       String persistenceUnitName) {
     if (null == emf) {
@@ -61,28 +73,5 @@ public final class EntityManagerUtil {
     }
 
     return emf;
-  }
-
-  public static EntityManager getEntityManager(String persistenceUnitName) {
-    var em  = ENTITYMANAGER.get();
-
-    if (null == em) {
-      getEntityManagerFactory(persistenceUnitName);
-      em  = emf.createEntityManager();
-      ENTITYMANAGER.set(em);
-    }
-    return em;
-  }
-
-  public static void closeEntityManager() {
-    var em  = ENTITYMANAGER.get();
-    ENTITYMANAGER.remove();
-    if (null != em) {
-      em.close();
-    }
-    if (null == emf) {
-      return;
-    }
-    emf.close();
   }
 }
