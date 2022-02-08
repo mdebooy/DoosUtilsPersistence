@@ -17,6 +17,8 @@
 package eu.debooy.doosutils.form;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import org.junit.Test;
 
 
@@ -25,10 +27,27 @@ import org.junit.Test;
  */
 public class FormulierTest {
   @Test
+  public void testInit1() {
+    var formulier = new Formulier();
+
+    assertNull(formulier.getLogger());
+  }
+
+  @Test
+  public void testInit2() {
+    var formulier = new Testformulier();
+
+    assertNull(formulier.getFormulier());
+    assertNull(formulier.getOpmerking());
+    assertFalse(formulier.isAktief());
+    assertNull(formulier.getLogger());
+  }
+
+  @Test
   public void testToString1() {
     var formulier = new Formulier();
 
-    assertEquals("Formulier (logger=<null>, gewijzigd=[false], "
+    assertEquals("Formulier (logger=<null>, "
                   + "class=[class eu.debooy.doosutils.form.Formulier])",
                  formulier.toString());
   }
@@ -38,7 +57,7 @@ public class FormulierTest {
     var formulier = new Testformulier();
 
     assertEquals("Testformulier (formulier=<null>, opmerking=<null>, "
-                  + "aktief=[false], logger=<null>, gewijzigd=[false], "
+                  + "aktief=[false], logger=<null>, "
                   + "class=[class eu.debooy.doosutils.form.Testformulier])",
                  formulier.toString());
 
@@ -48,7 +67,6 @@ public class FormulierTest {
 
     assertEquals("Testformulier (formulier=<Testformulier>, "
                   + "opmerking=[opmerking], aktief=[false], logger=<null>, "
-                  + "gewijzigd=[false], "
                   + "class=[class eu.debooy.doosutils.form.Testformulier])",
                  formulier.toString());
   }
