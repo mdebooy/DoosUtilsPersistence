@@ -18,6 +18,7 @@ package eu.debooy.doosutils.domain;
 
 import eu.debooy.doosutils.DoosConstants;
 import eu.debooy.doosutils.DoosUtils;
+import eu.debooy.doosutils.PersistenceConstants;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -35,13 +36,12 @@ import org.slf4j.Logger;
 public abstract class Dto implements Serializable {
   private static final  long  serialVersionUID  = 1L;
 
-  private static final  Set<String> EXCLUDE_METHODS   =
-      new HashSet<String>() {
-        private static final  long  serialVersionUID  = 1L;
-              {add("Class"); add("Logger");}};
-  private static final  String      GET               = "get";
-  private static final  String      LIKE              = "%";
-  private static final  String      IS                = "is";
+  private static final  Set<String> EXCLUDE_METHODS   = new HashSet<>();
+
+  static {
+    EXCLUDE_METHODS.add("Class");
+    EXCLUDE_METHODS.add("Logger");
+  }
 
   private boolean checkNullDiff(Object object1, Object object2,
                                 boolean modified) {
@@ -58,7 +58,12 @@ public abstract class Dto implements Serializable {
   }
 
   private boolean isCollectionModified(Collection<?> collection,
-                                       Collection<?> oldCollection) {
+                                       Collection<?> oldCollection,
+                                       boolean checkcollections) {
+    if (!checkcollections) {
+      return false;
+    }
+
     if (null == collection) {
       return (null != oldCollection );
     }
@@ -107,11 +112,9 @@ public abstract class Dto implements Serializable {
         modified  = checkNullDiff(object1, object2, modified);
         if (null != object1 && null != object2) {
           if (isCollections(object1, object2)) {
-            if (checkCollections) {
-              modified |= isCollectionModified((Collection<?>) object1,
-                                               (Collection<?>) object2);
-
-            }
+            modified |= isCollectionModified((Collection<?>) object1,
+                                             (Collection<?>) object2,
+                                             checkCollections);
           } else if (isDtos(object1, object2)) {
             modified |= ((Dto) object1).isModified((Dto) object2, false);
           } else {
@@ -139,30 +142,33 @@ public abstract class Dto implements Serializable {
     Object  waarde;
 
     for (var method : DoosUtils.findGetters(this.getClass().getMethods())) {
-      if (method.getName().startsWith(GET)) {
-        try {
-          attribute = method.getName().substring(3);
-          if (!EXCLUDE_METHODS.contains(attribute)) {
-            attribute = attribute.substring(0, 1).toLowerCase()
-                        + attribute.substring(1);
-            waarde    = method.invoke(this);
-            if (!(waarde instanceof ArrayList)
-                && DoosUtils.isNotBlankOrNull(waarde)) {
-              if (like
-                  && waarde instanceof String
-                  && !((String) waarde).contains(LIKE)) {
-                waarde  = LIKE + waarde + LIKE;
-              }
-              filter.addFilter(attribute, waarde);
-            }
+      attribute = method.getName().substring(3);
+      if (!method.getName().startsWith(PersistenceConstants.GET)
+          || !EXCLUDE_METHODS.contains(attribute)) {
+        continue;
+      }
+
+      try {
+        attribute = attribute.substring(0, 1).toLowerCase()
+                    + attribute.substring(1);
+        waarde    = method.invoke(this);
+        if (!(waarde instanceof ArrayList)
+            && DoosUtils.isNotBlankOrNull(waarde)) {
+          if (like
+              && waarde instanceof String
+              && !((String) waarde).contains(PersistenceConstants.LIKE)) {
+            waarde  = PersistenceConstants.LIKE + waarde
+                        + PersistenceConstants.LIKE;
           }
-        } catch (IllegalAccessException | IllegalArgumentException
-                 | InvocationTargetException e) {
-          Logger  logger  = getLogger();
-          if (null != logger) {
-            logger.error("makeFilter" + e.getClass().getName() + ": "
-                         + e.getMessage());
-          }
+          filter.addFilter(attribute, waarde);
+        }
+      } catch (IllegalAccessException | IllegalArgumentException
+               | InvocationTargetException e) {
+        var logger  = getLogger();
+        if (null != logger) {
+          logger.error(String.format("makeFilter {0}: {1}",
+                                     e.getClass().getName(),
+                                     e.getLocalizedMessage()));
         }
       }
     }
@@ -173,26 +179,30 @@ public abstract class Dto implements Serializable {
   @Override
   public String toString() {
     var     sb        = new StringBuilder();
-    String  attribute = null;
-    Object  waarde    = null;
+    String  attribute;
+    Object  waarde;
 
     sb.append(this.getClass().getSimpleName()).append(" (");
     for (var method : DoosUtils.findGetters(this.getClass().getMethods())) {
+      if (!method.getName().startsWith(PersistenceConstants.GET)
+          && !method.getName().startsWith(PersistenceConstants.IS)) {
+        continue;
+      }
+
+      if (method.getName().startsWith(PersistenceConstants.GET)) {
+        attribute = method.getName().substring(3);
+      } else {
+        attribute = method.getName().substring(2);
+      }
+
       try {
-        if (method.getName().startsWith(GET)) {
-          attribute = method.getName().substring(3);
-        } else if (method.getName().startsWith(IS)) {
-          attribute = method.getName().substring(2);
-        } else {
-          continue;
-        }
         attribute = attribute.substring(0, 1).toLowerCase()
-                    + attribute.substring(1);
+                      + attribute.substring(1);
         sb.append(", ").append(attribute).append("=");
         waarde = method.invoke(this);
         if (null != waarde) {
           if (waarde instanceof Dto) {
-            // Geef enkel de naam van andere DTOs.
+            // Geef enkel de naam van de andere DTO.
             sb.append("<").append(waarde.getClass().getSimpleName())
               .append(">");
           } else {
@@ -205,8 +215,9 @@ public abstract class Dto implements Serializable {
                | InvocationTargetException e) {
         var logger  = getLogger();
         if (null != logger) {
-          logger.error("toString" + e.getClass().getName() + ": "
-                  + e.getMessage());
+          logger.error(String.format("toString {0}: {1}",
+                                     e.getClass().getName(),
+                                     e.getLocalizedMessage()));
         }
       }
     }

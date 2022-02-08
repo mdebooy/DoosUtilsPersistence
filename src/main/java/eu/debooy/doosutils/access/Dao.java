@@ -41,7 +41,7 @@ import org.apache.openjpa.persistence.EntityExistsException;
 public abstract class Dao<T extends Dto> {
   protected abstract  EntityManager getEntityManager();
 
-  private Class<T>  dto;
+  private final Class<T>  dto;
 
   protected Dao(Class<T> dto) {
     this.dto  = dto;

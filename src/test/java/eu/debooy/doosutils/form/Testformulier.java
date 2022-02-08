@@ -14,30 +14,39 @@
  * See the Licence for the specific language governing permissions and
  * limitations under the Licence.
  */
-package eu.debooy.doosutils;
+package eu.debooy.doosutils.form;
 
-import java.text.MessageFormat;
-import java.util.Locale;
-import java.util.ResourceBundle;
-
+import java.io.Serializable;
 
 /**
  * @author Marco de Booij
  */
-public class PersistenceUtils {
-  private static final  ResourceBundle  resourceBundle  =
-      ResourceBundle.getBundle("Persistence", Locale.getDefault());
+public class Testformulier extends Formulier implements Serializable {
+  private boolean   aktief;
+  private Formulier form;
+  private String    opmerking;
 
-  private PersistenceUtils() {
-    throw new IllegalStateException("Utility class");
+  public Formulier  getFormulier() {
+    return form;
   }
 
-  public static String getMessage(String code, Object... parameters) {
-    if (null != parameters
-        && parameters.length > 0) {
-      return MessageFormat.format(resourceBundle.getString(code), parameters);
-    }
+  public String getOpmerking() {
+    return opmerking;
+  }
 
-    return resourceBundle.getString(code);
+  public boolean isAktief() {
+    return aktief;
+  }
+
+  public void setAktief(boolean aktief) {
+    this.aktief     = aktief;
+  }
+
+  public void setFormulier(Formulier form) {
+    this.form       = form;
+  }
+
+  public void setOpmerking(String opmerking) {
+    this.opmerking  = opmerking;
   }
 }

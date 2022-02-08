@@ -16,9 +16,13 @@
  */
 package eu.debooy.doosutils.form;
 
-import eu.debooy.doosutils.DoosUtils;
+import eu.debooy.doosutils.DoosConstants;
+import eu.debooy.doosutils.PersistenceConstants;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 
 
@@ -28,60 +32,72 @@ import org.slf4j.Logger;
 public class Formulier implements Serializable {
   private static final  long  serialVersionUID  = 1L;
 
-  protected boolean gewijzigd = false;
+  private static final  String[]  GET_METHODS_PREFIXES  = {"get", "is"};
+
+  private Method[] findGetters() {
+    List<Method>  getters   = new ArrayList<>();
+    Method[]      methodes  = this.getClass().getMethods();
+    for (Method method : methodes) {
+      for (String prefix : GET_METHODS_PREFIXES) {
+        if (method.getName().startsWith(prefix)) {
+          if (method.getParameterTypes() == null
+              || method.getParameterTypes().length == 0) {
+            getters.add(method);
+          }
+          break;
+        }
+      }
+    }
+    methodes = new Method[getters.size()];
+
+    return getters.toArray(methodes);
+  }
 
   public Logger getLogger() {
     return null;
   }
 
-  public boolean isGewijzigd() {
-    return gewijzigd;
-  }
-
+  @Override
   public String toString() {
     var     sb        = new StringBuilder();
-    String  attribute = null;
-    Object  waarde    = null;
+    String  attribute;
+    Object  waarde;
 
     sb.append(this.getClass().getSimpleName()).append(" (");
-    for (var method : DoosUtils.findGetters(this.getClass().getMethods())) {
+    for (var method : findGetters()) {
+      if (!method.getName().startsWith(PersistenceConstants.GET)
+          && !method.getName().startsWith(PersistenceConstants.IS)) {
+        continue;
+      }
+
+      if (method.getName().startsWith(PersistenceConstants.GET)) {
+        attribute = method.getName().substring(3);
+      } else {
+        attribute = method.getName().substring(2);
+      }
       try {
-        if (method.getName().startsWith("get")) {
-          attribute = method.getName().substring(3);
-        } else if (method.getName().startsWith("is")) {
-          attribute = method.getName().substring(2);
-        } else {
-          continue;
-        }
         attribute = attribute.substring(0, 1).toLowerCase()
-                    + attribute.substring(1);
+                      + attribute.substring(1);
         sb.append(", ").append(attribute).append("=");
         waarde = method.invoke(this);
         if (null != waarde) {
           if (waarde instanceof Formulier) {
-            // Geef enkel de naam van andere Formulieren.
+            // Geef enkel de naam van het andere Formulier.
             sb.append("<").append(waarde.getClass().getSimpleName())
               .append(">");
           } else {
             sb.append("[").append(waarde.toString()).append("]");
           }
         } else {
-          sb.append("<null>");
+          sb.append(DoosConstants.NULL);
         }
-      } catch (IllegalArgumentException e) {
-        Logger  logger  = getLogger();
+      } catch (IllegalAccessException | IllegalArgumentException
+               | InvocationTargetException e) {
+        var logger  = getLogger();
         if (null != logger) {
-          logger.error("toString IllegalArgumentException: " + e.getMessage());
-        }
-      } catch (IllegalAccessException e) {
-        Logger  logger  = getLogger();
-        if (null != logger) {
-          logger.error("toString IllegalAccessException: " + e.getMessage());
-        }
-      } catch (InvocationTargetException e) {
-        Logger  logger  = getLogger();
-        if (null != logger) {
-          logger.error("toString InvocationTargetException: " + e.getMessage());
+          logger.error(String.format("toString {0}: {1}",
+                                     e.getClass().getName(),
+                                     e.getLocalizedMessage()));
         }
       }
     }

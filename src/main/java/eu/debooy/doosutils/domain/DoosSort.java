@@ -31,7 +31,7 @@ import javax.persistence.criteria.Root;
  * @param <T>
  */
 public class DoosSort<T> implements CriteriaCommand<T> {
-  private List<Sort>  sorts = new ArrayList<>();
+  private final List<Sort>  sorts = new ArrayList<>();
 
   public void addSort(String property, String order) {
     sorts.add(new Sort(property, order));
@@ -46,7 +46,7 @@ public class DoosSort<T> implements CriteriaCommand<T> {
 
     var orderBy = new Order[sorts.size()];
     for (var i = 0; i < sorts.size(); i++) {
-      Sort  sort  = sorts.get(i);
+      var sort  = sorts.get(i);
       if (sort.getOrder().equals(Sort.ASC)) {
         orderBy[i]  = builder.asc(from.get(sort.getProperty()));
       } else {
@@ -63,7 +63,7 @@ public class DoosSort<T> implements CriteriaCommand<T> {
 
   @Override
   public String toString() {
-    StringBuilder sb  = new StringBuilder();
+    var sb  = new StringBuilder();
 
     sorts.forEach(sort ->
       sb.append(", ").append(sort.getProperty())

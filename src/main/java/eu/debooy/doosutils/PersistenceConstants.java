@@ -51,6 +51,10 @@ public final class PersistenceConstants {
   public static final String  WRONGDATE   = "errors.date";
   public static final String  WRONGVALUE  = "errors.value";
 
+  public static final  String GET   = "get";
+  public static final  String LIKE  = "%";
+  public static final  String IS    = "is";
+
   public static final String  ERR_INVALID_CONNECTION  =
       "error.invalid.connection";
 
