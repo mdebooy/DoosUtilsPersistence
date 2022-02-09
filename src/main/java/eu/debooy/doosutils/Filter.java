@@ -28,8 +28,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 public class Filter implements Serializable {
   private static final long serialVersionUID = 1L;
 
-  private final String  element;
-  private final Object  waarde;
+  private           final String  element;
+  private transient final Object  waarde;
 
   public Filter(String element, Object waarde) {
     this.element  = element;

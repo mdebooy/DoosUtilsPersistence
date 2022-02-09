@@ -95,7 +95,7 @@ public class Formulier implements Serializable {
                | InvocationTargetException e) {
         var logger  = getLogger();
         if (null != logger) {
-          logger.error(String.format("toString {0}: {1}",
+          logger.error(String.format("toString {}: {}",
                                      e.getClass().getName(),
                                      e.getLocalizedMessage()));
         }
