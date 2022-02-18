@@ -58,6 +58,11 @@ public final class PersistenceConstants {
   public static final String  ERR_INVALID_CONNECTION  =
       "error.invalid.connection";
 
-  public static final String  LBL_WACHTWOORD  = "label.wachtwoord";
+  public static final String  LBL_DBURL         = "label.dburl";
+  public static final String  LBL_DBUSER        = "label.dbuser";
+  public static final String  LBL_DBUSER_E      = "label.dbuser.extra";
+  public static final String  LBL_WACHTWOORD    = "label.wachtwoord";
+  public static final String  LBL_WACHTWOORD_E  = "label.wachtwoord.extra";
+  public static final String  LBL_WACHTWOORD_E2 = "label.wachtwoord.extra2";
 
 }

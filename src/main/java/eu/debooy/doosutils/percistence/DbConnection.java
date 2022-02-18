@@ -35,11 +35,12 @@ import javax.persistence.PersistenceException;
 public class DbConnection implements AutoCloseable {
   private EntityManager em  = null;
 
-  private final String  dburl;
-  private final String  dbuser;
+  private String  dburl;
+  private String  dbuser;
+  private String  wachtwoord;
+
   private final String  dbvendor;
   private final String  persistenceUnitName;
-  private       String  wachtwoord;
 
   private DbConnection(DbConnection.Builder builder) {
     dburl               = builder.getDbUrl();
@@ -114,12 +115,46 @@ public class DbConnection implements AutoCloseable {
   }
 
   public EntityManager getEntityManager() throws DoosException {
-    var props = new Properties();
-    if (null == wachtwoord) {
+    var props           = new Properties();
+    var labelDbuser     =
+          PersistenceUtils.getMessage(PersistenceConstants.LBL_DBUSER);
+    var labelWachtwoord =
+              PersistenceUtils.getMessage(PersistenceConstants.LBL_WACHTWOORD);
+
+    if (!DoosUtils.isBlankOrNull(dburl)
+        && DoosUtils.isBlankOrNull(dbuser)) {
+      labelDbuser =
+          PersistenceUtils.getMessage(PersistenceConstants.LBL_DBUSER_E);
+    }
+    if (DoosUtils.isBlankOrNull(wachtwoord)) {
+      if (!DoosUtils.isBlankOrNull(dburl)
+          && !DoosUtils.isBlankOrNull(dbuser)) {
+        labelWachtwoord = PersistenceUtils.getMessage(
+                PersistenceConstants.LBL_WACHTWOORD_E2);
+      } else {
+        if (!DoosUtils.isBlankOrNull(dburl)) {
+            labelWachtwoord = PersistenceUtils.getMessage(
+                    PersistenceConstants.LBL_WACHTWOORD_E);
+        }
+      }
+    }
+
+    if (DoosUtils.isBlankOrNull(dburl)) {
+      dburl       =
+        DoosUtils.getInvoer(MessageFormat.format(
+            PersistenceUtils.getMessage(PersistenceConstants.LBL_DBURL),
+            dbvendor.split(":")[1]));
+    }
+    if (DoosUtils.isBlankOrNull(dbuser)) {
+      dbuser      =
+        DoosUtils.getInvoer(MessageFormat.format(labelDbuser,
+                                                 dburl.split("/")[1]));
+    }
+    if (DoosUtils.isBlankOrNull(wachtwoord)) {
       wachtwoord  =
-        DoosUtils.getWachtwoord(MessageFormat.format(
-            PersistenceUtils.getMessage(PersistenceConstants.LBL_WACHTWOORD),
-            dbuser, dburl.split("/")[1]));
+        DoosUtils.getWachtwoord(MessageFormat.format(labelWachtwoord,
+                                                     dburl.split("/")[1],
+                                                     dbuser));
     }
 
     props.put("openjpa.ConnectionURL",      dbvendor + dburl);
