@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 
@@ -60,15 +61,17 @@ public class Formulier implements Serializable {
   @Override
   public String toString() {
     var     sb        = new StringBuilder();
-    String  attribute;
-    Object  waarde;
 
     sb.append(this.getClass().getSimpleName()).append(" (");
-    for (var method : findGetters()) {
-      if (!method.getName().startsWith(PersistenceConstants.GET)
-          && !method.getName().startsWith(PersistenceConstants.IS)) {
-        continue;
-      }
+
+    Arrays.stream(findGetters())
+          .filter(method -> method.getName()
+                                  .startsWith(PersistenceConstants.GET)
+                         || method.getName()
+                                  .startsWith(PersistenceConstants.IS))
+          .forEachOrdered(method -> {
+      String  attribute;
+      Object  waarde;
 
       if (method.getName().startsWith(PersistenceConstants.GET)) {
         attribute = method.getName().substring(3);
@@ -95,12 +98,11 @@ public class Formulier implements Serializable {
                | InvocationTargetException e) {
         var logger  = getLogger();
         if (null != logger) {
-          logger.error(String.format("toString {}: {}",
-                                     e.getClass().getName(),
-                                     e.getLocalizedMessage()));
+          logger.error("toString {}: {}", e.getClass().getName(),
+                                          e.getLocalizedMessage());
         }
       }
-    }
+    });
     sb.append(")");
 
     return sb.toString().replaceFirst("\\(, ", "\\(");
