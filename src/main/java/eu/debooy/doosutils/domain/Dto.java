@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 
 
@@ -173,6 +174,48 @@ public abstract class Dto implements Serializable {
     }
 
     return filter;
+  }
+
+  public JSONObject toJSON() {
+    var     json      = new JSONObject();
+    String  attribute;
+    Object  waarde;
+
+    for (var method : DoosUtils.findGetters(this.getClass().getMethods())) {
+      if ((!method.getName().startsWith(PersistenceConstants.GET)
+              && !method.getName().startsWith(PersistenceConstants.IS))
+              || method.getName().equals("getClass")) {
+        continue;
+      }
+
+      if (method.getName().startsWith(PersistenceConstants.GET)) {
+        attribute = method.getName().substring(3);
+      } else {
+        attribute = method.getName().substring(2);
+      }
+
+      try {
+        attribute = attribute.substring(0, 1).toLowerCase()
+                + attribute.substring(1);
+        waarde = method.invoke(this);
+        if (DoosUtils.isNotBlankOrNull(waarde)) {
+          if (waarde instanceof Dto) {
+            // Geef enkel de naam van de andere DTO.
+          } else {
+            json.put(attribute, waarde);
+          }
+        }
+      } catch (IllegalAccessException | IllegalArgumentException
+              | InvocationTargetException e) {
+        var logger  = getLogger();
+        if (null != logger) {
+          logger.error("toJSON {}: {}", e.getClass().getName(),
+                                        e.getLocalizedMessage());
+        }
+      }
+    }
+
+    return json;
   }
 
   @Override
