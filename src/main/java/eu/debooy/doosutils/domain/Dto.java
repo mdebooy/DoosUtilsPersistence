@@ -184,7 +184,8 @@ public abstract class Dto implements Serializable {
     for (var method : DoosUtils.findGetters(this.getClass().getMethods())) {
       if ((!method.getName().startsWith(PersistenceConstants.GET)
               && !method.getName().startsWith(PersistenceConstants.IS))
-              || method.getName().equals("getClass")) {
+              || method.getName().equals("getClass")
+              || method.getName().equals("getId")) {
         continue;
       }
 
