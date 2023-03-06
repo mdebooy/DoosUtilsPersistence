@@ -41,6 +41,8 @@ public final class PersistenceConstants {
   public static final String  MAXLENGTH   = "errors.maxlength";
   public static final String  NIETGROTER  = "errors.niet.groter";
   public static final String  NIETKLEINER = "errors.niet.kleiner";
+  public static final String  NIETLCASE   = "errors.niet.lowercase";
+  public static final String  NIETUCASE   = "errors.niet.uppercase";
   public static final String  NOROWS      = "info.norows";
   public static final String  NOTFOUND    = "errors.notfound";
   public static final String  RANGE       = "errors.range";
