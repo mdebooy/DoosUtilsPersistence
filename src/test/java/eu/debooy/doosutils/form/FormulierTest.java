@@ -47,8 +47,8 @@ public class FormulierTest {
   public void testToString1() {
     var formulier = new Formulier();
 
-    assertEquals("Formulier (logger=<null>, "
-                  + "class=[class eu.debooy.doosutils.form.Formulier])",
+    assertEquals("Formulier (class=[class eu.debooy.doosutils.form.Formulier]"
+                  + ", logger=<null>)",
                  formulier.toString());
   }
 
@@ -56,18 +56,21 @@ public class FormulierTest {
   public void testToString2() {
     var formulier = new Testformulier();
 
-    assertEquals("Testformulier (formulier=<null>, opmerking=<null>, "
-                  + "aktief=[false], logger=<null>, "
-                  + "class=[class eu.debooy.doosutils.form.Testformulier])",
+    assertEquals("Testformulier "
+                  + "(class=[class eu.debooy.doosutils.form.Testformulier]"
+                  + ", formulier=<null>, logger=<null>, opmerking=<null>, "
+                  + "aktief=[false])",
                  formulier.toString());
 
     var formulier2  = new Testformulier();
     formulier.setFormulier(formulier2);
     formulier.setOpmerking("opmerking");
 
-    assertEquals("Testformulier (formulier=<Testformulier>, "
-                  + "opmerking=[opmerking], aktief=[false], logger=<null>, "
-                  + "class=[class eu.debooy.doosutils.form.Testformulier])",
+    assertEquals("Testformulier "
+                  + "(class=[class eu.debooy.doosutils.form.Testformulier], "
+                  + "formulier=<Testformulier>, logger=<null>, "
+                  + "opmerking=[opmerking], "
+                  + "aktief=[false])",
                  formulier.toString());
   }
 }

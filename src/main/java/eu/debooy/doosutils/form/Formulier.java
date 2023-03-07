@@ -17,13 +17,10 @@
 package eu.debooy.doosutils.form;
 
 import eu.debooy.doosutils.DoosConstants;
+import eu.debooy.doosutils.DoosUtils;
 import eu.debooy.doosutils.PersistenceConstants;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.slf4j.Logger;
 
 
@@ -32,27 +29,6 @@ import org.slf4j.Logger;
  */
 public class Formulier implements Serializable {
   private static final  long  serialVersionUID  = 1L;
-
-  private static final  String[]  GET_METHODS_PREFIXES  = {"get", "is"};
-
-  private Method[] findGetters() {
-    List<Method>  getters   = new ArrayList<>();
-    Method[]      methodes  = this.getClass().getMethods();
-    for (Method method : methodes) {
-      for (String prefix : GET_METHODS_PREFIXES) {
-        if (method.getName().startsWith(prefix)) {
-          if (method.getParameterTypes() == null
-              || method.getParameterTypes().length == 0) {
-            getters.add(method);
-          }
-          break;
-        }
-      }
-    }
-    methodes = new Method[getters.size()];
-
-    return getters.toArray(methodes);
-  }
 
   public Logger getLogger() {
     return null;
@@ -64,12 +40,7 @@ public class Formulier implements Serializable {
 
     sb.append(this.getClass().getSimpleName()).append(" (");
 
-    Arrays.stream(findGetters())
-          .filter(method -> method.getName()
-                                  .startsWith(PersistenceConstants.GET)
-                         || method.getName()
-                                  .startsWith(PersistenceConstants.IS))
-          .forEachOrdered(method -> {
+    DoosUtils.findGetters(this.getClass().getMethods()).forEach(method -> {
       String  attribute;
       Object  waarde;
 

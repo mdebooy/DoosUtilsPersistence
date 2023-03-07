@@ -37,9 +37,13 @@ import org.slf4j.Logger;
 public abstract class Dto implements Serializable {
   private static final  long  serialVersionUID  = 1L;
 
+  private static final  Set<String> EXCLUDE_JSON     = new HashSet<>();
   private static final  Set<String> EXCLUDE_METHODS   = new HashSet<>();
 
   static {
+    EXCLUDE_JSON.add("getClass");
+    EXCLUDE_JSON.add("getId");
+
     EXCLUDE_METHODS.add("Class");
     EXCLUDE_METHODS.add("Logger");
   }
@@ -145,7 +149,7 @@ public abstract class Dto implements Serializable {
     for (var method : DoosUtils.findGetters(this.getClass().getMethods())) {
       attribute = method.getName().substring(3);
       if (!method.getName().startsWith(PersistenceConstants.GET)
-          || !EXCLUDE_METHODS.contains(attribute)) {
+          || EXCLUDE_METHODS.contains(attribute)) {
         continue;
       }
 
@@ -182,10 +186,7 @@ public abstract class Dto implements Serializable {
     Object  waarde;
 
     for (var method : DoosUtils.findGetters(this.getClass().getMethods())) {
-      if ((!method.getName().startsWith(PersistenceConstants.GET)
-              && !method.getName().startsWith(PersistenceConstants.IS))
-              || method.getName().equals("getClass")
-              || method.getName().equals("getId")) {
+      if (EXCLUDE_JSON.contains(method.getName())) {
         continue;
       }
 

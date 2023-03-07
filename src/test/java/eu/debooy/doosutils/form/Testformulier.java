@@ -18,6 +18,7 @@ package eu.debooy.doosutils.form;
 
 import java.io.Serializable;
 
+
 /**
  * @author Marco de Booij
  */
