@@ -45,6 +45,7 @@ public final class PersistenceConstants {
   public static final String  NIETUCASE   = "errors.niet.uppercase";
   public static final String  NOROWS      = "info.norows";
   public static final String  NOTFOUND    = "errors.notfound";
+  public static final String  NULL        = "errors.null";
   public static final String  RANGE       = "errors.range";
   public static final String  REQUIRED    = "errors.required";
   public static final String  SEARCHED    = "info.search";
