@@ -24,7 +24,7 @@ import java.util.ResourceBundle;
 /**
  * @author Marco de Booij
  */
-public class PersistenceUtils {
+public final class PersistenceUtils {
   private static final  ResourceBundle  resourceBundle  =
       ResourceBundle.getBundle("Persistence", Locale.getDefault());
 
