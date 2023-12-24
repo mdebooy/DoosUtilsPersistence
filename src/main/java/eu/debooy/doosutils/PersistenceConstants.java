@@ -30,6 +30,8 @@ public final class PersistenceConstants {
   public static final char  SEARCH    = 'S';
 
   public static final String  CREATED     = "info.create";
+  public static final String  DATEBEFORE  = "errors.date.before";
+  public static final String  DATEAFTER   = "errors.date.after";
   public static final String  DELETED     = "info.delete";
   public static final String  DUPLICATE   = "errors.duplicate";
   public static final String  EMPTY       = "errors.empty";

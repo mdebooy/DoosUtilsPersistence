@@ -26,9 +26,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaQuery;
-import org.apache.openjpa.persistence.EntityExistsException;
 
 
 /**
