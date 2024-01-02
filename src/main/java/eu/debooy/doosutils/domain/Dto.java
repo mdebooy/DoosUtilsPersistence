@@ -137,6 +137,14 @@ public abstract class Dto implements Serializable {
     }
   }
 
+  private void logException(String message, Exception e) {
+    var logger  = getLogger();
+    if (null != logger) {
+      logger.error("{} {}: {}", message, e.getClass().getName(),
+                                e.getLocalizedMessage());
+    }
+  }
+
   public <T> DoosFilter<T> makeFilter() {
     return makeFilter(false);
   }
@@ -169,11 +177,7 @@ public abstract class Dto implements Serializable {
         }
       } catch (IllegalAccessException | IllegalArgumentException
                | InvocationTargetException e) {
-        var logger  = getLogger();
-        if (null != logger) {
-          logger.error("makeFilter {}: {}", e.getClass().getName(),
-                                            e.getLocalizedMessage());
-        }
+        logException("maakFilter", e);
       }
     }
 
@@ -183,7 +187,6 @@ public abstract class Dto implements Serializable {
   public JSONObject toJSON() {
     var     json      = new JSONObject();
     String  attribute;
-    Object  waarde;
 
     for (var method : DoosUtils.findGetters(this.getClass().getMethods())) {
       if (EXCLUDE_JSON.contains(method.getName())) {
@@ -198,22 +201,11 @@ public abstract class Dto implements Serializable {
 
       try {
         attribute = attribute.substring(0, 1).toLowerCase()
-                + attribute.substring(1);
-        waarde = method.invoke(this);
-        if (DoosUtils.isNotBlankOrNull(waarde)) {
-          if (waarde instanceof Dto) {
-            // Geef enkel de naam van de andere DTO.
-          } else {
-            json.put(attribute, waarde);
-          }
-        }
+                      + attribute.substring(1);
+        waardeToJSON(method.invoke(this), json, attribute);
       } catch (IllegalAccessException | IllegalArgumentException
               | InvocationTargetException e) {
-        var logger  = getLogger();
-        if (null != logger) {
-          logger.error("toJSON {}: {}", e.getClass().getName(),
-                                        e.getLocalizedMessage());
-        }
+        logException("toJSON", e);
       }
     }
 
@@ -224,7 +216,6 @@ public abstract class Dto implements Serializable {
   public String toString() {
     var     sb        = new StringBuilder();
     String  attribute;
-    Object  waarde;
 
     sb.append(this.getClass().getSimpleName()).append(" (");
     for (var method : DoosUtils.findGetters(this.getClass().getMethods())) {
@@ -243,29 +234,41 @@ public abstract class Dto implements Serializable {
         attribute = attribute.substring(0, 1).toLowerCase()
                       + attribute.substring(1);
         sb.append(", ").append(attribute).append("=");
-        waarde = method.invoke(this);
-        if (null != waarde) {
-          if (waarde instanceof Dto) {
-            // Geef enkel de naam van de andere DTO.
-            sb.append("<").append(waarde.getClass().getSimpleName())
-              .append(">");
-          } else {
-            sb.append("[").append(waarde.toString()).append("]");
-          }
-        } else {
-          sb.append(DoosConstants.NULL);
-        }
+        waardeToString(method.invoke(this), sb);
       } catch (IllegalAccessException | IllegalArgumentException
                | InvocationTargetException e) {
-        var logger  = getLogger();
-        if (null != logger) {
-          logger.error("toString {}: {}", e.getClass().getName(),
-                                          e.getLocalizedMessage());
-        }
+        logException("toString", e);
       }
     }
     sb.append(")");
 
     return sb.toString().replaceFirst("\\(, ", "\\(");
+  }
+
+  private void waardeToJSON(Object waarde, JSONObject json, String attribute) {
+    if (DoosUtils.isBlankOrNull(waarde)) {
+      return;
+    }
+
+    if (waarde instanceof Dto) {
+      // Geef enkel de naam van de andere DTO.
+    } else {
+      json.put(attribute, waarde);
+    }
+  }
+
+  private void waardeToString(Object waarde, StringBuilder sb) {
+    if (null == waarde) {
+      sb.append(DoosConstants.NULL);
+      return;
+    }
+
+    if (waarde instanceof Dto) {
+      // Geef enkel de naam van de andere DTO.
+      sb.append("<").append(waarde.getClass().getSimpleName())
+        .append(">");
+    } else {
+      sb.append("[").append(waarde.toString()).append("]");
+    }
   }
 }
